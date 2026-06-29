@@ -84,17 +84,18 @@ img{display:block;width:100%;height:auto}
 .hero-top{max-width:390px;padding-top:clamp(4px,4svh,44px)}
 .hero-bottom{max-width:430px;padding-top:28px}
 .hero-video{position:absolute;right:0;z-index:3;width:clamp(82px,25vw,116px);
-  aspect-ratio:9/16;border:1px solid rgba(227,200,148,.55);border-radius:24px;overflow:hidden;
-  background:rgba(7,11,25,.38);box-shadow:0 22px 48px -20px rgba(0,0,0,.86),inset 0 0 0 1px rgba(255,255,255,.08);
+  aspect-ratio:9/16;border:1px solid rgba(227,200,148,.42);border-radius:24px;overflow:hidden;
+  background:rgba(7,11,25,.58);box-shadow:0 24px 56px -18px rgba(0,0,0,.9),0 0 34px -18px rgba(227,200,148,.5),inset 0 0 0 1px rgba(255,255,255,.07);
   backdrop-filter:blur(10px);opacity:0;transform:translateY(18px) scale(.96);
   animation:videoIn .9s .78s cubic-bezier(.2,.7,.2,1) forwards}
-.hero-video--top{top:clamp(196px,28svh,242px)}
-.hero-video--bottom{top:clamp(372px,50svh,440px);animation-delay:.95s}
+.hero-video--top{top:clamp(176px,25svh,218px)}
+.hero-video--bottom{top:clamp(392px,51.5svh,446px);animation-delay:.95s}
 .hero-video::before{content:"";position:absolute;inset:0;z-index:2;
-  background:linear-gradient(160deg,rgba(255,255,255,.18),transparent 28%,transparent 68%,rgba(205,168,107,.18));
+  background:linear-gradient(180deg,rgba(4,7,17,.18),rgba(4,7,17,.36)),
+    linear-gradient(160deg,rgba(255,255,255,.12),transparent 28%,transparent 68%,rgba(205,168,107,.16));
   pointer-events:none}
 .hero-video::after{content:"";position:absolute;inset:8px;border:1px solid rgba(255,255,255,.13);border-radius:18px;z-index:3;pointer-events:none}
-.hero-video video{width:100%;height:100%;object-fit:cover}
+.hero-video video{width:100%;height:100%;object-fit:cover;filter:brightness(.66) saturate(.78) contrast(1.04)}
 [data-theme="day"] .hero-video{border-color:rgba(19,36,63,.38);background:rgba(255,255,255,.44);
   box-shadow:0 18px 40px -24px rgba(19,36,63,.55),inset 0 0 0 1px rgba(255,255,255,.58)}
 .eyebrow{font-size:12px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);font-weight:600;
