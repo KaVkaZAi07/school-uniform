@@ -83,6 +83,18 @@ img{display:block;width:100%;height:auto}
   padding:calc(env(safe-area-inset-top,0px) + 42px) 0 calc(env(safe-area-inset-bottom,0px) + 30px)}
 .hero-top{max-width:390px;padding-top:clamp(4px,4svh,44px)}
 .hero-bottom{max-width:430px;padding-top:28px}
+.hero-video{position:absolute;right:0;top:clamp(218px,31svh,286px);z-index:3;width:clamp(94px,29vw,136px);
+  aspect-ratio:9/16;border:1px solid rgba(227,200,148,.55);border-radius:24px;overflow:hidden;
+  background:rgba(7,11,25,.38);box-shadow:0 22px 48px -20px rgba(0,0,0,.86),inset 0 0 0 1px rgba(255,255,255,.08);
+  backdrop-filter:blur(10px);opacity:0;transform:translateY(18px) scale(.96);
+  animation:videoIn .9s .78s cubic-bezier(.2,.7,.2,1) forwards}
+.hero-video::before{content:"";position:absolute;inset:0;z-index:2;
+  background:linear-gradient(160deg,rgba(255,255,255,.18),transparent 28%,transparent 68%,rgba(205,168,107,.18));
+  pointer-events:none}
+.hero-video::after{content:"";position:absolute;inset:8px;border:1px solid rgba(255,255,255,.13);border-radius:18px;z-index:3;pointer-events:none}
+.hero-video video{width:100%;height:100%;object-fit:cover}
+[data-theme="day"] .hero-video{border-color:rgba(19,36,63,.38);background:rgba(255,255,255,.44);
+  box-shadow:0 18px 40px -24px rgba(19,36,63,.55),inset 0 0 0 1px rgba(255,255,255,.58)}
 .eyebrow{font-size:12px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);font-weight:600;
   opacity:0;transform:translateY(14px);animation:rise .9s .2s cubic-bezier(.2,.7,.2,1) forwards;text-shadow:0 2px 18px rgba(0,0,0,.6)}
 .eyebrow::before{content:"";display:inline-block;width:26px;height:1px;background:var(--gold);vertical-align:middle;margin-right:12px;opacity:.7}
@@ -98,6 +110,7 @@ img{display:block;width:100%;height:auto}
 @keyframes drop{0%,100%{transform:scaleY(.4);transform-origin:top;opacity:.4}50%{transform:scaleY(1);opacity:1}}
 @keyframes rise{to{opacity:1;transform:translateY(0)}}
 @keyframes fade{to{opacity:1}}
+@keyframes videoIn{to{opacity:1;transform:translateY(0) scale(1)}}
 
 /* CATALOG */
 .catalog{padding:30px 0 80px}
@@ -190,6 +203,11 @@ img{display:block;width:100%;height:auto}
     <div class="hero-top">
       <div class="eyebrow">Коллекция 2026 / 2027</div>
       <h1><span class="l1">Школьная</span><span class="l2">форма</span></h1>
+    </div>
+    <div class="hero-video" aria-label="Видео школьной формы">
+      <video autoplay muted loop playsinline preload="auto" poster="media/hero-preview.webp">
+        <source src="media/hero-preview.mp4" type="video/mp4">
+      </video>
     </div>
     <div class="hero-bottom">
       <p class="sub">Безупречный крой, благородная ткань и посадка, которая держит форму весь учебный год. Витрина моделей для школ и родителей.</p>
