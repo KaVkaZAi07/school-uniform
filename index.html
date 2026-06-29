@@ -83,11 +83,13 @@ img{display:block;width:100%;height:auto}
   padding:calc(env(safe-area-inset-top,0px) + 42px) 0 calc(env(safe-area-inset-bottom,0px) + 30px)}
 .hero-top{max-width:390px;padding-top:clamp(4px,4svh,44px)}
 .hero-bottom{max-width:430px;padding-top:28px}
-.hero-video{position:absolute;right:0;top:clamp(218px,31svh,286px);z-index:3;width:clamp(94px,29vw,136px);
+.hero-video{position:absolute;right:0;z-index:3;width:clamp(82px,25vw,116px);
   aspect-ratio:9/16;border:1px solid rgba(227,200,148,.55);border-radius:24px;overflow:hidden;
   background:rgba(7,11,25,.38);box-shadow:0 22px 48px -20px rgba(0,0,0,.86),inset 0 0 0 1px rgba(255,255,255,.08);
   backdrop-filter:blur(10px);opacity:0;transform:translateY(18px) scale(.96);
   animation:videoIn .9s .78s cubic-bezier(.2,.7,.2,1) forwards}
+.hero-video--top{top:clamp(196px,28svh,242px)}
+.hero-video--bottom{top:clamp(372px,50svh,440px);animation-delay:.95s}
 .hero-video::before{content:"";position:absolute;inset:0;z-index:2;
   background:linear-gradient(160deg,rgba(255,255,255,.18),transparent 28%,transparent 68%,rgba(205,168,107,.18));
   pointer-events:none}
@@ -204,9 +206,14 @@ img{display:block;width:100%;height:auto}
       <div class="eyebrow">Коллекция 2026 / 2027</div>
       <h1><span class="l1">Школьная</span><span class="l2">форма</span></h1>
     </div>
-    <div class="hero-video" aria-label="Видео школьной формы">
+    <div class="hero-video hero-video--top" aria-label="Видео школьной формы">
       <video autoplay muted loop playsinline preload="auto" poster="media/hero-preview.webp">
         <source src="media/hero-preview.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="hero-video hero-video--bottom" aria-label="Видео школьной формы, второй образ">
+      <video autoplay muted loop playsinline preload="auto" poster="media/hero-preview-2.webp">
+        <source src="media/hero-preview-2.mp4" type="video/mp4">
       </video>
     </div>
     <div class="hero-bottom">
