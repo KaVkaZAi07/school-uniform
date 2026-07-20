@@ -229,12 +229,62 @@ img{display:block;width:100%;height:auto}
 .lb-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .3s}
 .lb-dots i.on{background:var(--gold);width:20px;border-radius:4px}
 
+/* SPLASH SCREEN */
+.splash{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 40%,#1a2248,#0c1028 60%,#060812);transition:opacity .6s ease,visibility .6s ease}
+.splash.hide{opacity:0;visibility:hidden;pointer-events:none}
+.splash-logo{width:clamp(160px,42vw,240px);perspective:800px;animation:splashIn 1.2s cubic-bezier(.16,1,.3,1) forwards}
+.splash-logo img{width:100%;height:auto;filter:drop-shadow(0 12px 40px rgba(205,168,107,.35)) drop-shadow(0 0 60px rgba(20,30,62,.8));
+  transform:rotateY(-18deg) rotateX(6deg) scale(.7);opacity:0;
+  animation:logo3d 1.4s .15s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes logo3d{
+  0%{opacity:0;transform:rotateY(-18deg) rotateX(6deg) scale(.7)}
+  50%{opacity:1;transform:rotateY(6deg) rotateX(-2deg) scale(1.04)}
+  100%{opacity:1;transform:rotateY(0) rotateX(0) scale(1)}
+}
+@keyframes splashIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.splash-bar{width:clamp(120px,32vw,180px);height:3px;border-radius:3px;background:rgba(255,255,255,.1);
+  margin-top:28px;overflow:hidden;opacity:0;animation:fade .4s .6s forwards}
+.splash-bar .fill{height:100%;width:0;border-radius:3px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-soft));animation:barFill 2.2s .8s ease-in-out forwards}
+@keyframes barFill{to{width:100%}}
+.splash-text{margin-top:14px;font-size:11px;letter-spacing:.36em;text-transform:uppercase;color:rgba(205,168,107,.7);
+  opacity:0;animation:fade .4s .9s forwards}
+
+/* BRAND BADGE (main site) */
+.brand-badge{position:fixed;top:calc(env(safe-area-inset-top,0px) + 58px);left:16px;z-index:25;
+  display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;
+  background:rgba(10,14,32,.62);border:1px solid rgba(205,168,107,.22);border-radius:40px;
+  backdrop-filter:blur(14px);box-shadow:0 8px 24px -12px rgba(0,0,0,.6);
+  opacity:0;transform:translateX(-12px);animation:badgeIn .7s 3.4s cubic-bezier(.2,.7,.2,1) forwards;
+  text-decoration:none;cursor:default}
+.brand-badge img{width:30px;height:30px;border-radius:50%;object-fit:cover;
+  border:1px solid rgba(205,168,107,.35)}
+.brand-badge span{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--gold-soft);white-space:nowrap;
+  text-shadow:0 1px 6px rgba(0,0,0,.5)}
+[data-theme="day"] .brand-badge{background:rgba(255,255,255,.72);border-color:rgba(20,42,76,.18);
+  box-shadow:0 6px 20px -10px rgba(20,42,76,.3)}
+[data-theme="day"] .brand-badge span{color:var(--gold)}
+@keyframes badgeIn{to{opacity:1;transform:translateX(0)}}
+
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;animation-iteration-count:1!important}
 }
 </style>
 </head>
 <body>
+<!-- SPLASH SCREEN -->
+<div class="splash" id="splash">
+  <div class="splash-logo"><img src="images/logo.webp" alt="Комбат-Family"></div>
+  <div class="splash-bar"><div class="fill"></div></div>
+  <div class="splash-text">Загрузка</div>
+</div>
+
+<div class="brand-badge" id="brandBadge">
+  <img src="images/logo-sm.webp" alt="">
+  <span>Комбат-Family</span>
+</div>
+
 <div class="bgphoto"><img src="images/bg.webp" alt=""></div>
 <div class="theme-switch" role="group" aria-label="Переключить тему">
   <button type="button" data-theme-choice="day" aria-pressed="false">День</button>
@@ -619,6 +669,12 @@ function initHistory(){
 window.addEventListener('popstate',e=>applyRoute(routeFromState(e.state)));
 window.addEventListener('hashchange',()=>applyRoute(routeFromHash()));
 initHistory();
+
+/* ---------- splash screen ---------- */
+setTimeout(()=>{
+  const sp=document.getElementById('splash');
+  if(sp){sp.classList.add('hide');setTimeout(()=>sp.remove(),700);}
+},3000);
 </script>
 </body>
 </html>
