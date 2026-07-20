@@ -174,9 +174,9 @@ img{display:block;width:100%;height:auto}
 [data-theme="day"] .cat-card.cat-video .cat-arrow svg{color:#6b3fa0}
 
 /* VIDEO GRID inside category view */
-.vid-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.vid-grid .vg-card{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surface);
-  box-shadow:var(--shadow);aspect-ratio:9/16}
+.vid-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.vid-grid .vg-card{border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--surface);
+  box-shadow:var(--shadow);aspect-ratio:3/4}
 .vid-grid .vg-card video{width:100%;height:100%;object-fit:cover;display:block}
 
 @keyframes shimmer{to{background-position:-220% 0}}
@@ -403,8 +403,8 @@ const CATEGORIES=[
     {id:16,title:"Кадетский комплект с юбкой для девочек",photos:["images/m16_01.webp","images/m16_02.webp","images/m16_03.webp","images/m16_04.webp"]}
   ]},
   {id:"adult",title:"Взрослая форма",models:[]},
-  {id:"videos",title:"Видеообзор моделей",type:"video",models:[],videos:["media/hero-preview.mp4","media/hero-preview-2.mp4"],
-   posters:["media/hero-preview.webp","media/hero-preview-2.webp"]}
+  {id:"videos",title:"Видеообзор моделей",type:"video",models:[],videos:["media/hero-preview.mp4","media/hero-preview-2.mp4","media/review-3.mp4"],
+   posters:["media/hero-preview.webp","media/hero-preview-2.webp",""]}
 ];
 
 /* flatten all models for lookup */
