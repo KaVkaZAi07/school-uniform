@@ -4,7 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0c0f20">
-<title>Школьная форма — Коллекция</title>
+<meta name="description" content="Комбат-Family — швейное производство, пошив фирменной одежды. Школьная форма, военная детская форма, взрослая форма. ИП Метова Жанна Муаедовна, КБР, Нарткала.">
+<meta property="og:title" content="Комбат-Family — Школьная и военная форма">
+<meta property="og:description" content="Швейное производство, пошив фирменной одежды. Школьная, военная детская и взрослая форма от ИП Метова Ж.М.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kavkazai07.github.io/school-uniform/">
+<meta property="og:image" content="https://kavkazai07.github.io/school-uniform/images/logo.webp">
+<link rel="icon" type="image/webp" href="images/logo-sm.webp">
+<link rel="apple-touch-icon" href="images/logo.webp">
+<title>Комбат-Family — Школьная и военная форма | Пошив фирменной одежды</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -80,26 +88,20 @@ img{display:block;width:100%;height:auto}
 [data-theme="day"] .scrollhint{text-shadow:0 1px 14px rgba(255,255,255,.9),0 1px 2px rgba(255,255,255,.85)}
 
 /* HERO */
-.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:space-between;position:relative;
+.hero{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:space-between;position:relative;
   padding:calc(env(safe-area-inset-top,0px) + 64px) 0 calc(env(safe-area-inset-bottom,0px) + 10px);
   scroll-snap-align:start;scroll-snap-stop:always}
 .hero-top{max-width:390px;padding-top:10px}
 .hero-bottom{max-width:430px;width:100%;margin:0 auto;padding-top:20px;z-index:5}
 .hero-video{position:absolute;right:0;z-index:3;width:clamp(82px,25vw,116px);
   aspect-ratio:9/16;border:1px solid rgba(227,200,148,.42);border-radius:24px;overflow:hidden;
-  background:rgba(7,11,25,.58);box-shadow:0 24px 56px -18 rgba(0,0,0,.9),0 0 34px -18px rgba(227,200,148,.5),inset 0 0 0 1px rgba(255,255,255,.07);
+  background:rgba(7,11,25,.58);box-shadow:0 24px 56px -18px rgba(0,0,0,.9),0 0 34px -18px rgba(227,200,148,.5),inset 0 0 0 1px rgba(255,255,255,.07);
   backdrop-filter:blur(10px);opacity:0;transform:translateY(18px) scale(.96);
   animation:videoIn .9s .78s cubic-bezier(.2,.7,.2,1) forwards}
 .hero-video--top{top:clamp(158px,23svh,198px)}
 .hero-video--bottom{top:clamp(368px,48.5svh,422px);animation-delay:.95s}
 
-/* BOTTOM VIDEOS */
-.vid-section{padding:10px 0 20px}
-.vid-section .vid-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px}
-.vid-section .vid-head h2{font-family:'Cormorant',serif;font-weight:500;font-size:26px;letter-spacing:.01em;text-shadow:0 2px 22px rgba(0,0,0,.7)}
-.vid-wrap{display:flex;flex-direction:column;gap:16px}
-.vid-card{border-radius:20px;overflow:hidden;border:1px solid var(--line);background:var(--surface);
-  box-shadow:var(--shadow);aspect-ratio:9/16;max-height:70vh}
+
 .vid-card video{width:100%;height:100%;object-fit:cover;display:block}
 .hero-video::before{content:"";position:absolute;inset:0;z-index:2;
   background:linear-gradient(180deg,rgba(4,7,17,.18),rgba(4,7,17,.36)),
@@ -126,7 +128,7 @@ img{display:block;width:100%;height:auto}
 @keyframes videoIn{to{opacity:1;transform:translateY(0) scale(1)}}
 
 /* CATALOG CATEGORIES */
-.catalog-page{scroll-snap-align:start;scroll-snap-stop:always;min-height:100svh;
+.catalog-page{scroll-snap-align:start;scroll-snap-stop:always;min-height:100vh;min-height:100svh;
   display:flex;flex-direction:column;justify-content:space-between;
   padding:calc(env(safe-area-inset-top,0px) + 52px) 0 calc(env(safe-area-inset-bottom,0px) + 14px)}
 .catalog{padding:0}
@@ -205,7 +207,7 @@ img{display:block;width:100%;height:auto}
   transition:transform .5s cubic-bezier(.2,.8,.2,1);visibility:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .cat-view.open{transform:translateY(0);visibility:visible}
 .cat-view .cv-topbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;
-  padding:calc(env(safe-area-inset-top,0px) + 16px) 18px 16px;background:var(--detail-topbar);backdrop-filter:blur(14px)}
+  padding:calc(env(safe-area-inset-top,0px) + 16px) 18px 16px;background:var(--detail-topbar);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .cat-view .cv-title{font-family:'Cormorant',serif;font-size:20px;color:var(--ink);letter-spacing:.02em}
 .cat-view .cv-body{padding:14px 22px calc(env(safe-area-inset-bottom,0px) + 40px)}
 
@@ -243,7 +245,7 @@ img{display:block;width:100%;height:auto}
   padding:calc(env(safe-area-inset-top,0px) + 16px) 18px 16px;background:var(--detail-topbar)}
 .backbtn{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.09);border:1px solid var(--line);
   color:var(--ink);border-radius:30px;padding:9px 16px 9px 12px;font-size:14px;font-weight:500;font-family:inherit;
-  backdrop-filter:blur(10px);cursor:pointer}
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);cursor:pointer}
 .backbtn svg{width:16px;height:16px}
 .dtitle{font-family:'Cormorant',serif;font-size:18px;color:var(--ink);letter-spacing:.02em}
 
@@ -277,7 +279,7 @@ img{display:block;width:100%;height:auto}
   -webkit-user-drag:none;user-select:none}
 .lb-close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:16px;z-index:5;
   width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid var(--line);
-  color:#fff;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);cursor:pointer}
+  color:#fff;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);cursor:pointer}
 .lb-close svg{width:20px;height:20px}
 .lb-dots{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);left:0;right:0;display:flex;justify-content:center;gap:7px;z-index:5;pointer-events:none}
 .lb-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .3s}
@@ -586,6 +588,7 @@ class Carousel{
       this.lastTouchEnd=Date.now();
       this.mode=null;
     },{passive:false});
+    vp.addEventListener('touchcancel',()=>{this.dragX=0;this._place(false);this.mode=null;},{passive:true});
     vp.addEventListener('click',e=>{
       if(!this.opts.onTap||Date.now()-this.lastTouchEnd<450)return;
       this.opts.onTap(this.index,e);
@@ -636,9 +639,13 @@ const cvTitle=document.getElementById('cvTitle');
 const cvGrid=document.getElementById('cvGrid');
 let currentCategory=null;
 
+let catViewObserver=null;
 function openCategory(cat){
   currentCategory=cat;
   cvTitle.textContent=cat.title;
+  /* pause and remove old videos before clearing */
+  cvGrid.querySelectorAll('video').forEach(v=>{try{v.pause();v.removeAttribute('src');v.load();}catch(e){}});
+  if(catViewObserver){catViewObserver.disconnect();catViewObserver=null;}
   cvGrid.innerHTML='';
   if(cat.type==='video'&&cat.videos){
     /* video grid */
@@ -656,19 +663,24 @@ function openCategory(cat){
     cat.models.forEach((m,i)=>{
       const card=document.createElement('div');
       card.className='card';card.style.animationDelay=(i*0.07)+'s';
-      card.innerHTML='<img src="'+m.photos[0]+'" alt=""><div class="sheen"></div>';
+      card.innerHTML='<img src="'+m.photos[0]+'" alt="'+m.title+'" loading="lazy"><div class="sheen"></div>';
       card.addEventListener('click',()=>openModel(m));
       cvGrid.appendChild(card);
     });
   }
   showCatView();currentView='category';pushView('category',cat.id,0);
   setTimeout(()=>{
-    const cio=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');cio.unobserve(e.target);}});},{threshold:.12});
-    cvGrid.querySelectorAll('.card').forEach(c=>cio.observe(c));
+    catViewObserver=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');catViewObserver.unobserve(e.target);}});},{threshold:.12});
+    cvGrid.querySelectorAll('.card').forEach(c=>catViewObserver.observe(c));
   },50);
 }
 function showCatView(){catView.classList.add('open');document.body.style.overflow='hidden';catView.scrollTop=0;}
-function hideCatView(){catView.classList.remove('open');document.body.style.overflow='';}
+function hideCatView(){
+  /* pause all videos before hiding */
+  cvGrid.querySelectorAll('video').forEach(v=>{try{v.pause();}catch(e){}});
+  if(catViewObserver){catViewObserver.disconnect();catViewObserver=null;}
+  catView.classList.remove('open');document.body.style.overflow='';
+}
 document.getElementById('catBack').addEventListener('click',goBack);
 
 /* ---------- instances ---------- */
