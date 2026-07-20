@@ -330,6 +330,21 @@ img{display:block;width:100%;height:auto}
 .hero-brand .brand-owner{font-family:'Cormorant',serif;font-style:italic;font-size:14px;color:rgba(244,242,235,0.75);margin-top:4px;letter-spacing:.02em;line-height:1.1}
 [data-theme="day"] .hero-brand .brand-owner{color:rgba(20,42,76,0.7)}
 
+/* WHATSAPP Distinct CTA Button */
+.cat-wa-btn{display:flex;align-items:center;justify-content:center;gap:12px;
+  margin:20px auto 0;width:100%;max-width:320px;padding:15px;
+  background:linear-gradient(135deg,#25D366,#20ba5a);color:#fff;
+  border-radius:99px;text-decoration:none;font-weight:700;font-size:15px;
+  letter-spacing:.02em;box-shadow:0 8px 24px -6px rgba(37,211,102,.5);
+  transition:transform .3s ease,box-shadow .3s ease;cursor:pointer;
+  opacity:0;transform:translateY(16px)}
+.cat-wa-btn.in{animation:waBtnIn .6s .4s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes waBtnIn{to{opacity:1;transform:translateY(0)}}
+.cat-wa-btn:active{transform:scale(.985)}
+.cat-wa-btn svg{width:20px;height:20px;fill:currentColor}
+[data-theme="day"] .cat-wa-btn{background:linear-gradient(135deg,#25D366,#1ebd56);
+  box-shadow:0 6px 20px -6px rgba(37,211,102,.4)}
+
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;animation-iteration-count:1!important}
 }
@@ -378,6 +393,7 @@ img{display:block;width:100%;height:auto}
     <section class="catalog">
       <div class="sec-head"><h2>Каталог</h2><span>Разделы</span></div>
       <div class="cat-list" id="catList"></div>
+      <div id="waCardContainer"></div>
     </section>
 
     <footer class="foot">
@@ -575,33 +591,38 @@ class Carousel{
 const catList=document.getElementById('catList');
 const arrowSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
 CATEGORIES.forEach((cat,ci)=>{
-  const el=document.createElement('div');
-  el.className='cat-card';el.style.animationDelay=(ci*0.12)+'s';
-  const isVideo=cat.type==='video';
   const isLink=cat.type==='link';
-  const hasContent=cat.models.length>0||isVideo||isLink;
-  if(isVideo)el.classList.add('cat-video');
-  if(isLink)el.classList.add('cat-whatsapp');
-  let countText='Скоро';
-  if(isVideo)countText=cat.videos.length+' видео';
-  else if(isLink)countText='Онлайн';
-  else if(cat.models.length>0)countText=cat.models.length+' '+(cat.models.length===1?'модель':cat.models.length<5?'модели':'моделей');
-  el.innerHTML='<div class="cat-left"><div class="cat-title">'+cat.title+'</div>'+
-    '<div class="cat-count">'+countText+'</div></div>'+
-    '<div class="cat-arrow">'+arrowSvg+'</div>';
-  if(hasContent){
-    if(isLink){
-      el.addEventListener('click',()=>window.open(cat.url,'_blank'));
-    }else{
-      el.addEventListener('click',()=>openCategory(cat));
-    }
+  if(isLink){
+    const waBtn=document.createElement('a');
+    waBtn.className='cat-wa-btn';
+    waBtn.href=cat.url;waBtn.target='_blank';waBtn.rel='noopener';
+    waBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.15c-1.52 0-3.01-.41-4.3-1.18l-.31-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 01-1.26-4.35c0-4.54 3.7-8.23 8.25-8.23 4.54 0 8.23 3.7 8.23 8.24 0 4.54-3.69 8.23-8.22 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.01-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43-.14-.01-.31-.01-.48-.01-.17 0-.43.06-.66.31-.23.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28z"/></svg>'+
+      cat.title;
+    document.getElementById('waCardContainer').appendChild(waBtn);
   }else{
-    el.classList.add('cat-empty');
+    const el=document.createElement('div');
+    el.className='cat-card';el.style.animationDelay=(ci*0.12)+'s';
+    const isVideo=cat.type==='video';
+    const hasContent=cat.models.length>0||isVideo;
+    if(isVideo)el.classList.add('cat-video');
+    let countText='Скоро';
+    if(isVideo)countText=cat.videos.length+' видео';
+    else if(cat.models.length>0)countText=cat.models.length+' '+(cat.models.length===1?'модель':cat.models.length<5?'модели':'моделей');
+    el.innerHTML='<div class="cat-left"><div class="cat-title">'+cat.title+'</div>'+
+      '<div class="cat-count">'+countText+'</div></div>'+
+      '<div class="cat-arrow">'+arrowSvg+'</div>';
+    if(hasContent){
+      el.addEventListener('click',()=>openCategory(cat));
+    }else{
+      el.classList.add('cat-empty');
+    }
+    catList.appendChild(el);
   }
-  catList.appendChild(el);
 });
-const catIO=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');catIO.unobserve(e.target);}});},{threshold:.12});
+const catIO=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');if(e.target.classList.contains('cat-card')||e.target.classList.contains('cat-wa-btn'))catIO.unobserve(e.target);}});},{threshold:.12});
 document.querySelectorAll('.cat-card').forEach(c=>catIO.observe(c));
+const waBtnEl=document.querySelector('.cat-wa-btn');
+if(waBtnEl)catIO.observe(waBtnEl);
 
 /* ---------- category view ---------- */
 const catView=document.getElementById('catView');
@@ -799,8 +820,22 @@ function dismissSplash(){
   if(sp){sp.classList.add('hide');setTimeout(()=>sp.remove(),600);}
 }
 if(splashVid){
-  splashVid.addEventListener('ended',dismissSplash);
-  setTimeout(dismissSplash,4500); /* fallback if video stalls */
+  let started=false;
+  let timer=null;
+  function onPlay(){
+    if(!started){
+      started=true;
+      timer=setTimeout(dismissSplash,4000); /* precisely 4 seconds of actual playback */
+    }
+  }
+  splashVid.addEventListener('playing',onPlay);
+  splashVid.addEventListener('play',onPlay);
+  splashVid.addEventListener('ended',()=>{
+    if(timer)clearTimeout(timer);
+    dismissSplash();
+  });
+  /* fallback if browser blocks autoplay completely: */
+  setTimeout(dismissSplash,4800);
 }else{dismissSplash();}
 </script>
 </body>
