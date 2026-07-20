@@ -290,6 +290,12 @@ img{display:block;width:100%;height:auto}
 .hero-tagline .tag-list{font-size:13px;color:var(--muted);letter-spacing:.06em;line-height:1.7;
   text-shadow:0 1px 8px rgba(0,0,0,.5)}
 .hero-tagline .tag-list strong{color:var(--ink);font-weight:500}
+.hero-tagline .tag-owner{font-family:'Cormorant',serif;font-style:italic;font-size:16px;color:var(--gold-soft);margin-top:14px;letter-spacing:.06em;text-shadow:0 2px 14px rgba(0,0,0,.6)}
+
+/* HERO BRAND HEADER */
+.hero-brand{text-align:center;margin-top:clamp(20px,4svh,40px);opacity:0;transform:translateY(14px);animation:rise .9s .4s cubic-bezier(.2,.7,.2,1) forwards}
+.hero-brand h1{font-family:'Cormorant',serif;font-size:clamp(40px,11vw,64px);font-weight:500;color:var(--ink);letter-spacing:.02em;margin:0;line-height:1.1;text-shadow:0 4px 24px rgba(0,0,0,.7)}
+.hero-brand .brand-sub{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-top:8px;font-weight:600;text-shadow:0 2px 12px rgba(0,0,0,.6)}
 
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;animation-iteration-count:1!important}
@@ -318,15 +324,19 @@ img{display:block;width:100%;height:auto}
 <div class="wrap">
   <header class="hero">
     <div class="hero-top">
+      <div class="hero-brand">
+        <h1>Комбат-Family</h1>
+        <div class="brand-sub">Швейное производство · пошив фирменной одежды</div>
+      </div>
     </div>
     <div class="hero-bottom">
       <div class="hero-tagline">
-        <div class="tag-main">Швейное производство<br>пошив форменной одежды</div>
         <div class="tag-divider"><span>Направления</span></div>
         <div class="tag-list">
           <strong>Школьная форма</strong> · <strong>Военная детская</strong><br>
           <strong>Офисная и ведомственная</strong>
         </div>
+        <div class="tag-owner">ИП Метова Жанна Муаедовна</div>
       </div>
       <div class="scrollhint"><span>Смотреть</span><div class="line"></div></div>
     </div>
