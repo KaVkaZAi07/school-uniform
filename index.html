@@ -173,6 +173,20 @@ img{display:block;width:100%;height:auto}
 [data-theme="day"] .cat-card.cat-video .cat-count{color:#6b3fa0}
 [data-theme="day"] .cat-card.cat-video .cat-arrow svg{color:#6b3fa0}
 
+/* WHATSAPP category accent */
+.cat-card.cat-whatsapp{background:linear-gradient(135deg,rgba(37,211,102,.12),rgba(18,140,126,.16));border-color:rgba(37,211,102,.24)}
+.cat-card.cat-whatsapp:hover{background:linear-gradient(135deg,rgba(37,211,102,.20),rgba(18,140,126,.22))}
+.cat-card.cat-whatsapp::before{background:linear-gradient(160deg,rgba(37,211,102,.08),transparent 45%)}
+.cat-card.cat-whatsapp .cat-title{color:var(--ink)}
+.cat-card.cat-whatsapp .cat-count{color:#30d170}
+.cat-card.cat-whatsapp .cat-arrow{background:rgba(37,211,102,.12);border-color:rgba(37,211,102,.26)}
+.cat-card.cat-whatsapp:hover .cat-arrow{background:rgba(37,211,102,.24)}
+.cat-card.cat-whatsapp .cat-arrow svg{color:#30d170}
+[data-theme="day"] .cat-card.cat-whatsapp{background:linear-gradient(135deg,rgba(235,255,242,.62),rgba(220,248,228,.58));border-color:rgba(37,211,102,.20)}
+[data-theme="day"] .cat-card.cat-whatsapp:hover{background:linear-gradient(135deg,rgba(240,255,245,.76),rgba(225,250,232,.72))}
+[data-theme="day"] .cat-card.cat-whatsapp .cat-count{color:#1a9a4b}
+[data-theme="day"] .cat-card.cat-whatsapp .cat-arrow svg{color:#1a9a4b}
+
 /* VIDEO GRID inside category view */
 .vid-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;grid-column:1/-1;margin:0 -22px;padding:0 4px}
 .vid-grid .vg-card{border-radius:8px;overflow:hidden;border:none;background:var(--surface);
@@ -207,8 +221,14 @@ img{display:block;width:100%;height:auto}
 .card.ph .ph-in .n{font-family:'Cormorant',serif;font-size:34px;color:rgba(205,168,107,.55)}
 .card.ph .ph-in .plus{width:30px;height:30px;border:1px solid rgba(255,255,255,.16);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:300;color:var(--muted)}
 
-.foot{text-align:center;padding:30px 0 50px;color:var(--steel);font-size:12px;letter-spacing:.04em;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.foot{text-align:center;padding:32px 0 50px;color:var(--steel);font-size:11px;letter-spacing:.04em;text-shadow:0 2px 12px rgba(0,0,0,.6);line-height:1.6}
 .foot .div{width:40px;height:1px;background:var(--line);margin:0 auto 18px}
+.foot-info{max-width:480px;margin:0 auto;padding:0 16px;opacity:0.85}
+.foot-info strong{color:var(--ink);font-weight:600}
+.foot-addr{font-size:10px;color:var(--muted);margin-top:4px}
+[data-theme="day"] .foot{color:rgba(20,42,76,0.6)}
+[data-theme="day"] .foot-info strong{color:rgba(20,42,76,0.9)}
+[data-theme="day"] .foot-addr{color:rgba(20,42,76,0.5)}
 
 /* DETAIL */
 .detail{position:fixed;inset:0;z-index:50;background:var(--bg);transform:translateY(100%);
@@ -235,11 +255,11 @@ img{display:block;width:100%;height:auto}
 .cta-bar{position:absolute;bottom:0;left:0;right:0;padding:18px 18px calc(env(safe-area-inset-bottom,0px) + 22px);
   background:var(--cta-fade);z-index:10}
 .wa-btn{display:flex;align-items:center;justify-content:center;gap:11px;width:100%;
-  background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#15110a;
+  background:linear-gradient(135deg,#25D366,#20ba5a);color:#fff;
   border:none;border-radius:16px;padding:17px;font-family:inherit;font-size:16px;font-weight:700;letter-spacing:.01em;
-  box-shadow:0 14px 30px -8px rgba(205,168,107,.5);cursor:pointer;text-decoration:none}
+  box-shadow:0 12px 26px -8px rgba(37,211,102,.45);cursor:pointer;text-decoration:none}
 .wa-btn:active{transform:scale(.985)}
-.wa-btn svg{width:21px;height:21px}
+.wa-btn svg{width:21px;height:21px;fill:currentColor}
 
 /* FULLSCREEN */
 .lightbox{position:fixed;inset:0;z-index:60;background:var(--lightbox-bg);opacity:0;visibility:hidden;overflow:hidden;
@@ -354,7 +374,15 @@ img{display:block;width:100%;height:auto}
     <div class="cat-list" id="catList"></div>
   </section>
 
-  <footer class="foot"><div class="div"></div>Витрина школьной формы · 2026</footer>
+  <footer class="foot">
+    <div class="div"></div>
+    <div class="foot-info">
+      <div><strong>ИП Метова Жанна Муаедовна</strong></div>
+      <div>Швейное производство «Комбат-Family»</div>
+      <div>ИНН: 070805712252 · ОГРНИП: 312072402500021</div>
+      <div class="foot-addr">361411, КБР, Чегемский р-н, с. Нартан, ул. Братьев Нагоевых, д. 31</div>
+    </div>
+  </footer>
 </div>
 
 <!-- CATEGORY VIEW -->
@@ -368,6 +396,15 @@ img{display:block;width:100%;height:auto}
   </div>
   <div class="cv-body">
     <div class="grid" id="cvGrid"></div>
+    <footer class="foot">
+      <div class="div"></div>
+      <div class="foot-info">
+        <div><strong>ИП Метова Жанна Муаедовна</strong></div>
+        <div>Швейное производство «Комбат-Family»</div>
+        <div>ИНН: 070805712252 · ОГРНИП: 312072402500021</div>
+        <div class="foot-addr">361411, КБР, Чегемский р-н, с. Нартан, ул. Братьев Нагоевых, д. 31</div>
+      </div>
+    </footer>
   </div>
 </div>
 
@@ -440,7 +477,8 @@ const CATEGORIES=[
   ]},
   {id:"adult",title:"Взрослая форма",models:[]},
   {id:"videos",title:"Видеообзор моделей",type:"video",models:[],videos:["media/hero-preview.mp4","media/hero-preview-2.mp4","media/review-3.mp4"],
-   posters:["media/hero-preview.webp","media/hero-preview-2.webp",""]}
+   posters:["media/hero-preview.webp","media/hero-preview-2.webp",""]},
+  {id:"whatsapp",title:"Написать в WhatsApp",type:"link",url:"https://wa.me/79034909634?text=Здравствуйте!%20Интересует%20пошив%20форменной%20одежды",models:[]}
 ];
 
 /* flatten all models for lookup */
@@ -533,14 +571,23 @@ CATEGORIES.forEach((cat,ci)=>{
   const el=document.createElement('div');
   el.className='cat-card';el.style.animationDelay=(ci*0.12)+'s';
   const isVideo=cat.type==='video';
-  const hasContent=cat.models.length>0||isVideo;
+  const isLink=cat.type==='link';
+  const hasContent=cat.models.length>0||isVideo||isLink;
   if(isVideo)el.classList.add('cat-video');
-  const countText=isVideo?(cat.videos.length+' видео'):cat.models.length>0?(cat.models.length+' '+(cat.models.length===1?'модель':cat.models.length<5?'модели':'моделей')):'Скоро';
+  if(isLink)el.classList.add('cat-whatsapp');
+  let countText='Скоро';
+  if(isVideo)countText=cat.videos.length+' видео';
+  else if(isLink)countText='Онлайн';
+  else if(cat.models.length>0)countText=cat.models.length+' '+(cat.models.length===1?'модель':cat.models.length<5?'модели':'моделей');
   el.innerHTML='<div class="cat-left"><div class="cat-title">'+cat.title+'</div>'+
     '<div class="cat-count">'+countText+'</div></div>'+
     '<div class="cat-arrow">'+arrowSvg+'</div>';
   if(hasContent){
-    el.addEventListener('click',()=>openCategory(cat));
+    if(isLink){
+      el.addEventListener('click',()=>window.open(cat.url,'_blank'));
+    }else{
+      el.addEventListener('click',()=>openCategory(cat));
+    }
   }else{
     el.classList.add('cat-empty');
   }
