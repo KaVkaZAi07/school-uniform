@@ -159,6 +159,26 @@ img{display:block;width:100%;height:auto}
 [data-theme="day"] .cat-card.cat-empty:hover{background:linear-gradient(135deg,rgba(255,255,255,.72),rgba(240,248,255,.68))}
 .cat-card.cat-empty .cat-count{color:var(--muted)}
 .cat-card.cat-empty .cat-arrow{display:none}
+
+/* VIDEO category accent */
+.cat-card.cat-video{background:linear-gradient(135deg,rgba(58,28,82,.78),rgba(32,18,56,.82))}
+.cat-card.cat-video:hover{background:linear-gradient(135deg,rgba(68,34,96,.86),rgba(40,22,66,.88))}
+.cat-card.cat-video::before{background:linear-gradient(160deg,rgba(180,120,255,.1),transparent 45%)}
+.cat-card.cat-video .cat-count{color:#c9a0f0}
+.cat-card.cat-video .cat-arrow{background:rgba(180,120,255,.18);border-color:rgba(180,120,255,.35)}
+.cat-card.cat-video:hover .cat-arrow{background:rgba(180,120,255,.32)}
+.cat-card.cat-video .cat-arrow svg{color:#c9a0f0}
+[data-theme="day"] .cat-card.cat-video{background:linear-gradient(135deg,rgba(240,232,255,.78),rgba(228,218,248,.72))}
+[data-theme="day"] .cat-card.cat-video:hover{background:linear-gradient(135deg,rgba(245,238,255,.88),rgba(235,225,252,.82))}
+[data-theme="day"] .cat-card.cat-video .cat-count{color:#6b3fa0}
+[data-theme="day"] .cat-card.cat-video .cat-arrow svg{color:#6b3fa0}
+
+/* VIDEO GRID inside category view */
+.vid-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.vid-grid .vg-card{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surface);
+  box-shadow:var(--shadow);aspect-ratio:9/16}
+.vid-grid .vg-card video{width:100%;height:100%;object-fit:cover;display:block}
+
 @keyframes shimmer{to{background-position:-220% 0}}
 
 /* CATEGORY VIEW (fullscreen panel with model grid) */
@@ -298,21 +318,6 @@ img{display:block;width:100%;height:auto}
     <div class="cat-list" id="catList"></div>
   </section>
 
-  <section class="vid-section">
-    <div class="vid-wrap">
-      <div class="vid-card">
-        <video autoplay muted loop playsinline preload="auto" poster="media/hero-preview.webp">
-          <source src="media/hero-preview.mp4" type="video/mp4">
-        </video>
-      </div>
-      <div class="vid-card">
-        <video autoplay muted loop playsinline preload="auto" poster="media/hero-preview-2.webp">
-          <source src="media/hero-preview-2.mp4" type="video/mp4">
-        </video>
-      </div>
-    </div>
-  </section>
-
   <footer class="foot"><div class="div"></div>Витрина школьной формы · 2026</footer>
 </div>
 
@@ -396,7 +401,9 @@ const CATEGORIES=[
     {id:15,title:"Кадетский брючный комплект для мальчиков",photos:["images/m15_01.webp","images/m15_02.webp","images/m15_03.webp"]},
     {id:16,title:"Кадетский комплект с юбкой для девочек",photos:["images/m16_01.webp","images/m16_02.webp","images/m16_03.webp","images/m16_04.webp"]}
   ]},
-  {id:"adult",title:"Взрослая форма",models:[]}
+  {id:"adult",title:"Взрослая форма",models:[]},
+  {id:"videos",title:"Видеообзор моделей",type:"video",models:[],videos:["media/hero-preview.mp4","media/hero-preview-2.mp4"],
+   posters:["media/hero-preview.webp","media/hero-preview-2.webp"]}
 ];
 
 /* flatten all models for lookup */
@@ -488,12 +495,14 @@ const arrowSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
 CATEGORIES.forEach((cat,ci)=>{
   const el=document.createElement('div');
   el.className='cat-card';el.style.animationDelay=(ci*0.12)+'s';
-  const hasModels=cat.models.length>0;
-  const countText=hasModels?(cat.models.length+' '+(cat.models.length===1?'модель':cat.models.length<5?'модели':'моделей')):'Скоро';
+  const isVideo=cat.type==='video';
+  const hasContent=cat.models.length>0||isVideo;
+  if(isVideo)el.classList.add('cat-video');
+  const countText=isVideo?(cat.videos.length+' видео'):cat.models.length>0?(cat.models.length+' '+(cat.models.length===1?'модель':cat.models.length<5?'модели':'моделей')):'Скоро';
   el.innerHTML='<div class="cat-left"><div class="cat-title">'+cat.title+'</div>'+
     '<div class="cat-count">'+countText+'</div></div>'+
     '<div class="cat-arrow">'+arrowSvg+'</div>';
-  if(hasModels){
+  if(hasContent){
     el.addEventListener('click',()=>openCategory(cat));
   }else{
     el.classList.add('cat-empty');
@@ -513,13 +522,27 @@ function openCategory(cat){
   currentCategory=cat;
   cvTitle.textContent=cat.title;
   cvGrid.innerHTML='';
-  cat.models.forEach((m,i)=>{
-    const card=document.createElement('div');
-    card.className='card';card.style.animationDelay=(i*0.07)+'s';
-    card.innerHTML='<img src="'+m.photos[0]+'" alt=""><div class="sheen"></div>';
-    card.addEventListener('click',()=>openModel(m));
-    cvGrid.appendChild(card);
-  });
+  if(cat.type==='video'&&cat.videos){
+    /* video grid */
+    const vg=document.createElement('div');vg.className='vid-grid';
+    cat.videos.forEach((src,i)=>{
+      const vc=document.createElement('div');vc.className='vg-card';
+      const v=document.createElement('video');
+      v.autoplay=true;v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';
+      if(cat.posters&&cat.posters[i])v.poster=cat.posters[i];
+      v.innerHTML='<source src="'+src+'" type="video/mp4">';
+      vc.appendChild(v);vg.appendChild(vc);
+    });
+    cvGrid.appendChild(vg);
+  }else{
+    cat.models.forEach((m,i)=>{
+      const card=document.createElement('div');
+      card.className='card';card.style.animationDelay=(i*0.07)+'s';
+      card.innerHTML='<img src="'+m.photos[0]+'" alt=""><div class="sheen"></div>';
+      card.addEventListener('click',()=>openModel(m));
+      cvGrid.appendChild(card);
+    });
+  }
   showCatView();currentView='category';pushView('category',cat.id,0);
   setTimeout(()=>{
     const cio=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');cio.unobserve(e.target);}});},{threshold:.12});
@@ -604,14 +627,27 @@ function applyRoute(route){
   }
   if(view==='category'){
     const cat=catById(route.id);
-    if(!cat||cat.models.length===0){currentView='home';hidePhoto();hideDetail();hideCatView();return;}
+    if(!cat||(cat.models.length===0&&cat.type!=='video')){currentView='home';hidePhoto();hideDetail();hideCatView();return;}
     currentCategory=cat;cvTitle.textContent=cat.title;
     cvGrid.innerHTML='';
-    cat.models.forEach((m,i)=>{
-      const card=document.createElement('div');
-      card.className='card in';card.innerHTML='<img src="'+m.photos[0]+'" alt=""><div class="sheen"></div>';
-      card.addEventListener('click',()=>openModel(m));cvGrid.appendChild(card);
-    });
+    if(cat.type==='video'&&cat.videos){
+      const vg=document.createElement('div');vg.className='vid-grid';
+      cat.videos.forEach((src,i)=>{
+        const vc=document.createElement('div');vc.className='vg-card';
+        const v=document.createElement('video');
+        v.autoplay=true;v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';
+        if(cat.posters&&cat.posters[i])v.poster=cat.posters[i];
+        v.innerHTML='<source src="'+src+'" type="video/mp4">';
+        vc.appendChild(v);vg.appendChild(vc);
+      });
+      cvGrid.appendChild(vg);
+    }else{
+      cat.models.forEach((m,i)=>{
+        const card=document.createElement('div');
+        card.className='card in';card.innerHTML='<img src="'+m.photos[0]+'" alt=""><div class="sheen"></div>';
+        card.addEventListener('click',()=>openModel(m));cvGrid.appendChild(card);
+      });
+    }
     hidePhoto();hideDetail();showCatView();currentView='category';return;
   }
   const m=modelById(route.id)||ALL_MODELS[0];
