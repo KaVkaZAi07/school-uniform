@@ -79,13 +79,13 @@ img{display:block;width:100%;height:auto}
 [data-theme="day"] .scrollhint{text-shadow:0 1px 14px rgba(255,255,255,.9),0 1px 2px rgba(255,255,255,.85)}
 
 /* HERO */
-.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:space-between;position:relative;
-  padding:calc(env(safe-area-inset-top,0px) + 42px) 0 calc(env(safe-area-inset-bottom,0px) + 30px)}
+.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;position:relative;
+  padding:calc(env(safe-area-inset-top,0px) + 42px) 0 calc(env(safe-area-inset-bottom,0px) + 12px)}
 .hero-top{max-width:390px;padding-top:clamp(4px,4svh,44px)}
-.hero-bottom{max-width:430px;padding-top:28px}
+.hero-bottom{max-width:430px;width:100%;margin:0 auto;padding-top:20px;z-index:5}
 .hero-video{position:absolute;right:0;z-index:3;width:clamp(82px,25vw,116px);
   aspect-ratio:9/16;border:1px solid rgba(227,200,148,.42);border-radius:24px;overflow:hidden;
-  background:rgba(7,11,25,.58);box-shadow:0 24px 56px -18px rgba(0,0,0,.9),0 0 34px -18px rgba(227,200,148,.5),inset 0 0 0 1px rgba(255,255,255,.07);
+  background:rgba(7,11,25,.58);box-shadow:0 24px 56px -18 rgba(0,0,0,.9),0 0 34px -18px rgba(227,200,148,.5),inset 0 0 0 1px rgba(255,255,255,.07);
   backdrop-filter:blur(10px);opacity:0;transform:translateY(18px) scale(.96);
   animation:videoIn .9s .78s cubic-bezier(.2,.7,.2,1) forwards}
 .hero-video--top{top:clamp(158px,23svh,198px)}
@@ -115,9 +115,9 @@ img{display:block;width:100%;height:auto}
 .hero h1 .l2{display:block;color:var(--gold-soft);font-style:italic;opacity:0;transform:translateY(26px);animation:rise 1s .5s cubic-bezier(.2,.7,.2,1) forwards}
 .hero p.sub{margin:0;color:var(--hero-copy);font-size:15px;line-height:1.62;font-weight:300;
   opacity:0;transform:translateY(18px);animation:rise 1s .7s cubic-bezier(.2,.7,.2,1) forwards;text-shadow:0 2px 16px rgba(0,0,0,.9)}
-.scrollhint{margin:24px auto 0;display:flex;flex-direction:column;align-items:center;gap:8px;
+.scrollhint{margin:36px auto 0;display:flex;flex-direction:column;align-items:center;gap:12px;
   font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--hint);opacity:0;animation:fade 1s 1.05s forwards;text-shadow:0 2px 12px rgba(0,0,0,.8)}
-.scrollhint .line{width:1px;height:34px;background:linear-gradient(var(--gold),transparent);animation:drop 2s ease-in-out infinite}
+.scrollhint .line{width:2px;height:46px;background:linear-gradient(var(--gold-soft),transparent);animation:drop 2s ease-in-out infinite}
 @keyframes drop{0%,100%{transform:scaleY(.4);transform-origin:top;opacity:.4}50%{transform:scaleY(1);opacity:1}}
 @keyframes rise{to{opacity:1;transform:translateY(0)}}
 @keyframes fade{to{opacity:1}}
@@ -325,7 +325,7 @@ img{display:block;width:100%;height:auto}
         <div class="tag-divider"><span>Направления</span></div>
         <div class="tag-list">
           <strong>Школьная форма</strong> · <strong>Военная детская</strong><br>
-          <strong>Офисная и ведомственная</strong> · МЧС · МВД · Охрана
+          <strong>Офисная и ведомственная</strong>
         </div>
       </div>
       <div class="scrollhint"><span>Смотреть</span><div class="line"></div></div>
