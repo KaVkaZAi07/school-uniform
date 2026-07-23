@@ -784,33 +784,50 @@ try{CATALOG_STORE=JSON.parse(localStorage.getItem('kombat_catalog_data')||'{}');
 const SUPABASE_URL = "https://feloduzdmjsyuxzohnno.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jl94eUNinaoBPXBeCacaiw_kVP-idH4";
 let db = null;
+
+function applySupabaseData(dataList) {
+  if (!dataList || dataList.length === 0) return;
+  dataList.forEach(item => {
+    CATALOG_STORE[item.id] = {
+      priceOld: item.price_old || '',
+      priceNew: item.price_new || '',
+      desc: item.description || ''
+    };
+  });
+  // Обновляем текущие открытые виды (категории/детали)
+  try {
+    if (typeof currentCategory !== 'undefined' && currentCategory && typeof openCategory === 'function') {
+      if (document.getElementById('catView') && document.getElementById('catView').classList.contains('open')) {
+        openCategory(currentCategory);
+      }
+    }
+    if (typeof currentModel !== 'undefined' && currentModel && typeof prepareModel === 'function') {
+      if (document.getElementById('detail') && document.getElementById('detail').classList.contains('open')) {
+        prepareModel(currentModel);
+      }
+    }
+  } catch(e){}
+}
+
+// 1. Способ через JS SDK
 try {
   if (window.supabase) {
     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     db.from('kombat_catalog').select('*').then(res => {
-      if (res.data && res.data.length > 0) {
-        res.data.forEach(item => {
-          CATALOG_STORE[item.id] = {
-            priceOld: item.price_old || '',
-            priceNew: item.price_new || '',
-            desc: item.description || ''
-          };
-        });
-        // Если пользователь уже открыл категорию или модель, обновляем отображение
-        if (typeof currentCategory !== 'undefined' && currentCategory && typeof openCategory === 'function') {
-          if (document.getElementById('catView') && document.getElementById('catView').classList.contains('open')) {
-            openCategory(currentCategory);
-          }
-        }
-        if (typeof currentModel !== 'undefined' && currentModel && typeof prepareModel === 'function') {
-          if (document.getElementById('detail') && document.getElementById('detail').classList.contains('open')) {
-            prepareModel(currentModel);
-          }
-        }
-      }
+      if (res.data) applySupabaseData(res.data);
     }).catch(()=>{});
   }
 } catch(e){}
+
+// 2. Прямой REST API способ для iOS Safari (на случай блокировки CDN/SDK на iPhone)
+fetch(SUPABASE_URL + '/rest/v1/kombat_catalog?select=*', {
+  headers: {
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+  }
+}).then(r => r.json()).then(data => {
+  if (Array.isArray(data)) applySupabaseData(data);
+}).catch(()=>{});
 
 // Backup data.json
 fetch('data.json').then(r=>r.json()).then(d=>{if(d) CATALOG_STORE=Object.assign({}, d, CATALOG_STORE);}).catch(()=>{});

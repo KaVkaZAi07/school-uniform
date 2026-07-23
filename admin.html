@@ -281,22 +281,40 @@ async function loadFromCloud() {
     }
   } catch(e) {}
 
-  // 2. Затем подтягиваем ДЕЙСТВИТЕЛЬНЫЕ данные из Supabase (они главный приоритет)
+  // 2. Затем подтягиваем ДЕЙСТВИТЕЛЬНЫЕ данные из Supabase
+  let fetchedData = null;
   if (db) {
     try {
       const { data, error } = await db.from('kombat_catalog').select('*');
-      if (data && data.length > 0) {
-        data.forEach(item => {
-          // Если в Supabase заполнены значения, перезаписываем
-          store[item.id] = {
-            priceOld: item.price_old || (store[item.id] ? store[item.id].priceOld : ''),
-            priceNew: item.price_new || (store[item.id] ? store[item.id].priceNew : ''),
-            desc: item.description || (store[item.id] ? store[item.id].desc : '')
-          };
-        });
-        localStorage.setItem('kombat_catalog_data', JSON.stringify(store));
+      if (data && data.length > 0) fetchedData = data;
+    } catch(e) {}
+  }
+
+  // Запасной прямой REST запрос если SDK на iPhone заблокирован
+  if (!fetchedData) {
+    try {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/kombat_catalog?select=*', {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+        }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (Array.isArray(json) && json.length > 0) fetchedData = json;
       }
     } catch(e) {}
+  }
+
+  if (fetchedData && fetchedData.length > 0) {
+    fetchedData.forEach(item => {
+      store[item.id] = {
+        priceOld: item.price_old || (store[item.id] ? store[item.id].priceOld : ''),
+        priceNew: item.price_new || (store[item.id] ? store[item.id].priceNew : ''),
+        desc: item.description || (store[item.id] ? store[item.id].desc : '')
+      };
+    });
+    try { localStorage.setItem('kombat_catalog_data', JSON.stringify(store)); } catch(e) {}
   }
 }
 
@@ -385,21 +403,38 @@ async function saveAll() {
     localStorage.setItem('kombat_catalog_data', JSON.stringify(store));
   } catch(e) {}
 
-  // 2. Сохраняем в Supabase
-  let cloudSuccess = true;
+  // 2. Сохраняем в Supabase (двойной механизм: SDK + Прямой REST API для iPhone)
+  let cloudSuccess = false;
+  const upsertData = Object.keys(store).map(id => ({
+    id: parseInt(id),
+    price_old: store[id].priceOld || '',
+    price_new: store[id].priceNew || '',
+    description: store[id].desc || ''
+  }));
+
+  // Способ А: через SDK
   if (db) {
     try {
-      const upsertData = Object.keys(store).map(id => ({
-        id: parseInt(id),
-        price_old: store[id].priceOld || '',
-        price_new: store[id].priceNew || '',
-        description: store[id].desc || ''
-      }));
       const { error } = await db.from('kombat_catalog').upsert(upsertData, { onConflict: 'id' });
-      if (error) cloudSuccess = false;
-    } catch(e) {
-      cloudSuccess = false;
-    }
+      if (!error) cloudSuccess = true;
+    } catch(e) {}
+  }
+
+  // Способ Б: Прямой REST API способ для iPhone (если SDK не сработал или заблокирован)
+  if (!cloudSuccess) {
+    try {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/kombat_catalog', {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates'
+        },
+        body: JSON.stringify(upsertData)
+      });
+      if (res.ok) cloudSuccess = true;
+    } catch(e) {}
   }
 
   saveBtn.disabled = false;
