@@ -17,7 +17,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <!-- Supabase JS Client -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
   var theme='night';
@@ -708,7 +707,8 @@ const cvGrid=document.getElementById('cvGrid');
 let currentCategory=null;
 
 let catViewObserver=null;
-function openCategory(cat){
+function openCategory(cat,updateHistory=true,preserveScroll=false){
+  const previousScroll=preserveScroll?catView.scrollTop:0;
   currentCategory=cat;
   cvTitle.textContent=cat.title;
   /* pause and remove old videos before clearing */
@@ -744,13 +744,15 @@ function openCategory(cat){
       cvGrid.appendChild(card);
     });
   }
-  showCatView();currentView='category';pushView('category',cat.id,0);
+  showCatView(!preserveScroll);currentView='category';
+  if(updateHistory)pushView('category',cat.id,0);
+  if(preserveScroll)requestAnimationFrame(()=>{catView.scrollTop=previousScroll;});
   setTimeout(()=>{
     catViewObserver=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');catViewObserver.unobserve(e.target);}});},{threshold:.12});
     cvGrid.querySelectorAll('.card').forEach(c=>catViewObserver.observe(c));
   },50);
 }
-function showCatView(){catView.classList.add('open');document.body.style.overflow='hidden';catView.scrollTop=0;}
+function showCatView(resetScroll=true){catView.classList.add('open');document.body.style.overflow='hidden';if(resetScroll)catView.scrollTop=0;}
 function hideCatView(){
   /* pause all videos before hiding */
   cvGrid.querySelectorAll('video').forEach(v=>{try{v.pause();}catch(e){}});
@@ -778,27 +780,29 @@ function catById(id){return CATEGORIES.find(c=>c.id===id);}
 function catByModelId(mid){return CATEGORIES.find(c=>c.models.some(m=>String(m.id)===String(mid)));}
 function modelName(m){return m.title||('Модель '+m.id);}
 let CATALOG_STORE={};
-try{CATALOG_STORE=JSON.parse(localStorage.getItem('kombat_catalog_data')||'{}');}catch(e){}
+try{localStorage.removeItem('kombat_catalog_data');}catch(e){}
 
 // Supabase интеграция
 const SUPABASE_URL = "https://feloduzdmjsyuxzohnno.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jl94eUNinaoBPXBeCacaiw_kVP-idH4";
-let db = null;
+let catalogLoadPromise=null;
 
 function applySupabaseData(dataList) {
-  if (!dataList || dataList.length === 0) return;
+  if (!Array.isArray(dataList)) return;
+  const nextStore={};
   dataList.forEach(item => {
-    CATALOG_STORE[item.id] = {
-      priceOld: item.price_old || '',
-      priceNew: item.price_new || '',
-      desc: item.description || ''
+    nextStore[item.id] = {
+      priceOld: item.price_old == null ? '' : String(item.price_old).replace(/[^\d.,]/g,'').slice(0,16),
+      priceNew: item.price_new == null ? '' : String(item.price_new).replace(/[^\d.,]/g,'').slice(0,16),
+      desc: item.description == null ? '' : String(item.description)
     };
   });
+  CATALOG_STORE=nextStore;
   // Обновляем текущие открытые виды (категории/детали)
   try {
     if (typeof currentCategory !== 'undefined' && currentCategory && typeof openCategory === 'function') {
-      if (document.getElementById('catView') && document.getElementById('catView').classList.contains('open')) {
-        openCategory(currentCategory);
+      if (currentCategory.type !== 'video' && document.getElementById('catView') && document.getElementById('catView').classList.contains('open')) {
+        openCategory(currentCategory,false,true);
       }
     }
     if (typeof currentModel !== 'undefined' && currentModel && typeof prepareModel === 'function') {
@@ -809,30 +813,35 @@ function applySupabaseData(dataList) {
   } catch(e){}
 }
 
-// 1. Способ через JS SDK
-try {
-  if (window.supabase) {
-    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    db.from('kombat_catalog').select('*').then(res => {
-      if (res.data) applySupabaseData(res.data);
-    }).catch(()=>{});
-  }
-} catch(e){}
+async function loadCatalogData(){
+  if(catalogLoadPromise)return catalogLoadPromise;
+  catalogLoadPromise=(async()=>{
+    try{
+      const requestUrl=SUPABASE_URL+'/rest/v1/kombat_catalog?select=id,price_old,price_new,description&order=id.asc&_t='+Date.now();
+      const response=await fetch(requestUrl,{
+        cache:'no-store',
+        headers:{
+          'apikey':SUPABASE_ANON_KEY,
+          'Authorization':'Bearer '+SUPABASE_ANON_KEY
+        }
+      });
+      if(!response.ok)throw new Error('Catalog request failed: '+response.status);
+      const data=await response.json();
+      if(Array.isArray(data))applySupabaseData(data);
+    }catch(e){}
+  })();
+  try{await catalogLoadPromise;}finally{catalogLoadPromise=null;}
+}
 
-// 2. Прямой REST API способ с отключением кэширования Safari (cache: 'no-store')
-fetch(SUPABASE_URL + '/rest/v1/kombat_catalog?select=*&_t=' + Date.now(), {
-  cache: 'no-store',
-  headers: {
-    'apikey': SUPABASE_ANON_KEY,
-    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-    'Cache-Control': 'no-cache, no-store, must-revalidate'
-  }
-}).then(r => r.json()).then(data => {
-  if (Array.isArray(data)) applySupabaseData(data);
-}).catch(()=>{});
+function refreshCatalogWhenVisible(){
+  if(document.visibilityState==='hidden')return;
+  loadCatalogData();
+}
 
-// Backup data.json
-fetch('data.json').then(r=>r.json()).then(d=>{if(d) CATALOG_STORE=Object.assign({}, d, CATALOG_STORE);}).catch(()=>{});
+loadCatalogData();
+window.addEventListener('pageshow',refreshCatalogWhenVisible);
+window.addEventListener('focus',refreshCatalogWhenVisible);
+document.addEventListener('visibilitychange',refreshCatalogWhenVisible);
 
 function getModelData(mid){
   return CATALOG_STORE[mid]||{};

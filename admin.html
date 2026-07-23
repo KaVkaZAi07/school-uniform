@@ -264,57 +264,36 @@ const PRODUCTS_DATA = [
 ];
 
 let store = {};
+let cloudLoaded = false;
+try { localStorage.removeItem('kombat_catalog_data'); } catch(e) {}
 
-// Загрузка локальных бэкапов
-try {
-  store = JSON.parse(localStorage.getItem('kombat_catalog_data') || '{}');
-} catch(e) {}
-
-// Функция загрузки из базы / файла
+// Supabase is the only authoritative source for catalog data.
 async function loadFromCloud() {
-  // 1. Сначала загружаем дефолты из data.json
   try {
-    const res = await fetch('data.json');
-    if (res.ok) {
-      const localJson = await res.json();
-      store = Object.assign({}, localJson, store);
-    }
-  } catch(e) {}
-
-  // 2. Затем подтягиваем ДЕЙСТВИТЕЛЬНЫЕ данные из Supabase
-  let fetchedData = null;
-  if (db) {
-    try {
-      const { data, error } = await db.from('kombat_catalog').select('*');
-      if (data && data.length > 0) fetchedData = data;
-    } catch(e) {}
-  }
-
-  // Запасной прямой REST запрос если SDK на iPhone заблокирован
-  try {
-    const res = await fetch(SUPABASE_URL + '/rest/v1/kombat_catalog?select=*&_t=' + Date.now(), {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/kombat_catalog?select=id,price_old,price_new,description&order=id.asc&_t=' + Date.now(), {
       cache: 'no-store',
       headers: {
         'apikey': SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-        'Cache-Control': 'no-cache, no-store, must-revalidate'
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
       }
     });
-    if (res.ok) {
-      const json = await res.json();
-      if (Array.isArray(json) && json.length > 0) fetchedData = json;
-    }
-  } catch(e) {}
-
-  if (fetchedData && fetchedData.length > 0) {
+    if (!res.ok) throw new Error('Catalog request failed: ' + res.status);
+    const fetchedData = await res.json();
+    if (!Array.isArray(fetchedData)) throw new Error('Invalid catalog response');
+    const nextStore = {};
     fetchedData.forEach(item => {
-      store[item.id] = {
-        priceOld: item.price_old || (store[item.id] ? store[item.id].priceOld : ''),
-        priceNew: item.price_new || (store[item.id] ? store[item.id].priceNew : ''),
-        desc: item.description || (store[item.id] ? store[item.id].desc : '')
+      nextStore[item.id] = {
+        priceOld: item.price_old == null ? '' : String(item.price_old),
+        priceNew: item.price_new == null ? '' : String(item.price_new),
+        desc: item.description == null ? '' : String(item.description)
       };
     });
-    try { localStorage.setItem('kombat_catalog_data', JSON.stringify(store)); } catch(e) {}
+    store = nextStore;
+    cloudLoaded = true;
+    return true;
+  } catch(e) {
+    cloudLoaded = false;
+    return false;
   }
 }
 
@@ -322,8 +301,12 @@ async function checkPin() {
   const input = document.getElementById('pinInput').value;
   if(input === CORRECT_PIN) {
     document.getElementById('loginOverlay').style.display = 'none';
-    await loadFromCloud();
+    const loaded = await loadFromCloud();
     renderProducts('all');
+    if(!loaded) {
+      document.getElementById('saveBtn').disabled = true;
+      showToast("Ошибка загрузки данных из облака", "#f44336");
+    }
   } else {
     alert('Неверный PIN-код!');
   }
@@ -386,6 +369,10 @@ function filterCat(cat, evt) {
 }
 
 async function saveAll() {
+  if(!cloudLoaded) {
+    showToast("Сохранение заблокировано: данные из облака не загружены", "#f44336");
+    return;
+  }
   const saveBtn = document.getElementById('saveBtn');
   saveBtn.disabled = true;
   saveBtn.innerText = 'Сохраняем...';
@@ -398,12 +385,7 @@ async function saveAll() {
     store[id][field] = input.value.trim();
   });
 
-  // 1. Сохраняем локально на устройстве
-  try {
-    localStorage.setItem('kombat_catalog_data', JSON.stringify(store));
-  } catch(e) {}
-
-  // 2. Сохраняем в Supabase (двойной механизм: SDK + Прямой REST API для iPhone)
+  // Сохраняем в Supabase (SDK + прямой REST API как резервный способ)
   let cloudSuccess = false;
   const upsertData = Object.keys(store).map(id => ({
     id: parseInt(id),
@@ -441,9 +423,10 @@ async function saveAll() {
   saveBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Сохранить`;
   
   if (cloudSuccess) {
+    await loadFromCloud();
     showToast("✅ Изменения сохранены в облако!", "#25D366");
   } else {
-    showToast("⚠️ Сохранено локально (ошибка связи с облаком)", "#ff9800");
+    showToast("⚠️ Ошибка сохранения в облако", "#ff9800");
   }
 }
 
