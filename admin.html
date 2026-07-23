@@ -227,6 +227,7 @@ const CORRECT_PIN = "0707"; // PIN-код для входа клиентке
 // Supabase конфигурация
 const SUPABASE_URL = "https://feloduzdmjsyuxzohnno.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jl94eUNinaoBPXBeCacaiw_kVP-idH4";
+const CATALOG_PROXY_URL = "https://school-uniform-catalog.imperia-obuvi-07.workers.dev/catalog";
 const PUBLIC_CATALOG_URL = SUPABASE_URL + "/functions/v1/catalog-public";
 
 // Инициализация Supabase клиента
@@ -272,23 +273,45 @@ let cloudLoaded = false;
 try { localStorage.removeItem('kombat_catalog_data'); } catch(e) {}
 
 // Supabase is the only authoritative source for catalog data.
+async function fetchCatalogPayload(url, headers, cacheBust) {
+  const requestUrl = cacheBust
+    ? url + (url.indexOf('?') === -1 ? '?' : '&') + 'v=' + Date.now()
+    : url;
+  const response = await fetch(requestUrl, {
+    cache: 'no-store',
+    mode: 'cors',
+    headers: headers
+  });
+  if (!response.ok) throw new Error('Catalog request failed: ' + response.status);
+  const data = await response.json();
+  if (!Array.isArray(data)) throw new Error('Invalid catalog response');
+  return data;
+}
+
 async function loadFromCloud() {
   try {
-    let res = await fetch(PUBLIC_CATALOG_URL + '?v=' + Date.now(), {
-      cache: 'no-store',
-      mode: 'cors',
-      headers: {'Accept': 'application/json'}
-    });
-    if (!res.ok) {
-      res = await fetch(SUPABASE_URL + '/rest/v1/kombat_catalog?select=id,price_old,price_new,description&order=id.asc', {
-        cache: 'no-store',
-        mode: 'cors',
-        headers: {'apikey': SUPABASE_ANON_KEY, 'Accept': 'application/json'}
-      });
+    let fetchedData;
+    try {
+      fetchedData = await fetchCatalogPayload(
+        CATALOG_PROXY_URL,
+        {'Accept': 'application/json'},
+        true
+      );
+    } catch (proxyError) {
+      try {
+        fetchedData = await fetchCatalogPayload(
+          PUBLIC_CATALOG_URL,
+          {'Accept': 'application/json'},
+          true
+        );
+      } catch (publicError) {
+        fetchedData = await fetchCatalogPayload(
+          SUPABASE_URL + '/rest/v1/kombat_catalog?select=id,price_old,price_new,description&order=id.asc',
+          {'apikey': SUPABASE_ANON_KEY, 'Accept': 'application/json'},
+          false
+        );
+      }
     }
-    if (!res.ok) throw new Error('Catalog request failed: ' + res.status);
-    const fetchedData = await res.json();
-    if (!Array.isArray(fetchedData)) throw new Error('Invalid catalog response');
     const nextStore = {};
     fetchedData.forEach(item => {
       nextStore[item.id] = {

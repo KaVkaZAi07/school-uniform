@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "school-uniform-catalog",
+  "main": "cloudflare/catalog-proxy.js",
+  "compatibility_date": "2026-07-23",
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "SUPABASE_URL": "https://feloduzdmjsyuxzohnno.supabase.co",
+    "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_jl94eUNinaoBPXBeCacaiw_kVP-idH4"
+  }
+}

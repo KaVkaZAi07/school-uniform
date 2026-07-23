@@ -788,6 +788,7 @@ try{localStorage.removeItem('kombat_catalog_data');}catch(e){}
 // Supabase интеграция
 const SUPABASE_URL = "https://feloduzdmjsyuxzohnno.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jl94eUNinaoBPXBeCacaiw_kVP-idH4";
+const CATALOG_PROXY_URL = "https://school-uniform-catalog.imperia-obuvi-07.workers.dev/catalog";
 const PUBLIC_CATALOG_URL = SUPABASE_URL + "/functions/v1/catalog-public";
 let catalogLoadPromise=null;
 
@@ -817,37 +818,53 @@ function applySupabaseData(dataList) {
   } catch(e){}
 }
 
+async function fetchCatalogPayload(url,headers,cacheBust){
+  const requestUrl=cacheBust
+    ? url+(url.indexOf('?')===-1?'?':'&')+'v='+Date.now()
+    : url;
+  const response=await fetch(requestUrl,{
+    cache:'no-store',
+    mode:'cors',
+    headers:headers
+  });
+  if(!response.ok)throw new Error('Catalog request failed: '+response.status);
+  const data=await response.json();
+  if(!Array.isArray(data))throw new Error('Invalid catalog response');
+  return data;
+}
+
 async function loadCatalogData(){
   if(catalogLoadPromise)return catalogLoadPromise;
   catalogLoadPromise=(async()=>{
     document.documentElement.dataset.catalogStatus='loading';
     try{
-      const response=await fetch(PUBLIC_CATALOG_URL+'?v='+Date.now(),{
-        cache:'no-store',
-        mode:'cors',
-        headers:{'Accept':'application/json'}
-      });
-      if(!response.ok)throw new Error('Public catalog request failed: '+response.status);
-      const data=await response.json();
-      if(!Array.isArray(data))throw new Error('Invalid public catalog response');
+      let data;
+      try{
+        data=await fetchCatalogPayload(
+          CATALOG_PROXY_URL,
+          {'Accept':'application/json'},
+          true
+        );
+      }catch(proxyError){
+        try{
+          data=await fetchCatalogPayload(
+            PUBLIC_CATALOG_URL,
+            {'Accept':'application/json'},
+            true
+          );
+        }catch(publicError){
+          const fallbackUrl=SUPABASE_URL+'/rest/v1/kombat_catalog?select=id,price_old,price_new,description&order=id.asc';
+          data=await fetchCatalogPayload(
+            fallbackUrl,
+            {'apikey':SUPABASE_ANON_KEY,'Accept':'application/json'},
+            false
+          );
+        }
+      }
       applySupabaseData(data);
       document.documentElement.dataset.catalogStatus='ready';
-    }catch(publicError){
-      try{
-        const fallbackUrl=SUPABASE_URL+'/rest/v1/kombat_catalog?select=id,price_old,price_new,description&order=id.asc';
-        const fallbackResponse=await fetch(fallbackUrl,{
-          cache:'no-store',
-          mode:'cors',
-          headers:{'apikey':SUPABASE_ANON_KEY,'Accept':'application/json'}
-        });
-        if(!fallbackResponse.ok)throw new Error('Catalog fallback failed: '+fallbackResponse.status);
-        const fallbackData=await fallbackResponse.json();
-        if(!Array.isArray(fallbackData))throw new Error('Invalid catalog fallback response');
-        applySupabaseData(fallbackData);
-        document.documentElement.dataset.catalogStatus='ready';
-      }catch(fallbackError){
-        document.documentElement.dataset.catalogStatus='error';
-      }
+    }catch(catalogError){
+      document.documentElement.dataset.catalogStatus='error';
     }
   })();
   try{await catalogLoadPromise;}finally{catalogLoadPromise=null;}

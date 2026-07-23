@@ -15,17 +15,23 @@ https://github.com/KaVkaZAi07/school-uniform.git
 
 ## 2. Техническое устройство
 
-Проект полностью статический.
+Основной интерфейс проекта статический и размещается на GitHub Pages. Цены и
+описания моделей загружаются динамически из Supabase через Cloudflare Worker.
 
 Основные файлы:
 - `index.html` - весь сайт в одном файле: HTML, CSS и JavaScript.
+- `admin.html` - редактор цен и описаний.
 - `images/` - фон и фото карточек.
 - `media/` - видео-превью на главном экране.
+- `cloudflare/catalog-proxy.js` - публичный прокси только для чтения каталога.
+- `wrangler.jsonc` - конфигурация развертывания Cloudflare Worker.
+- `supabase/functions/catalog-public/index.ts` - резервный Supabase Edge Function.
 - `README.txt` - короткая памятка.
 - `docs/PROJECT_MEMORY.md` - эта подробная память.
 - `docs/HANDOFF_PROMPT.md` - готовый промпт для другой модели.
 
-Здесь нет сборщика, package.json, npm, React или backend. Сайт можно открыть как статический HTML, но для проверки путей лучше запускать локальный сервер.
+Здесь нет сборщика, package.json или React. Сайт можно открыть как статический
+HTML, но для проверки путей и CORS лучше запускать локальный сервер.
 
 ## 3. Важные функции сайта
 
@@ -34,7 +40,7 @@ https://github.com/KaVkaZAi07/school-uniform.git
 - переключатель "День / Ночь";
 - два вертикальных видео-превью на главном экране из папки `media/`;
 - каталог из 10 мест;
-- активные карточки берутся из массива `MODELS`;
+- активные карточки берутся из вложенных массивов `models` в `CATEGORIES`;
 - неактивные места показываются как плейсхолдеры с номером и плюсом;
 - детальная галерея карточки;
 - полноэкранное открытие фото;
@@ -44,11 +50,13 @@ https://github.com/KaVkaZAi07/school-uniform.git
 
 ## 4. Текущие модели
 
-Модели описаны в `index.html` в блоке:
+Модели описаны в `index.html` внутри соответствующей категории в блоке:
 
 ```js
-const MODELS=[
-  ...
+const CATEGORIES=[
+  {id:"school", title:"Школьная форма", models:[
+    ...
+  ]}
 ];
 ```
 
@@ -83,7 +91,7 @@ const MODELS=[
    - `images/m8_04.webp`
    - `images/m8_05.webp`
 
-3. В `index.html` добавить в `MODELS`:
+3. В `index.html` добавить в `models` нужной категории `CATEGORIES`:
 
 ```js
 {id:7,title:"Название модели",photos:["images/m7_01.webp","images/m7_02.webp","images/m7_03.webp","images/m7_04.webp","images/m7_05.webp"]},
@@ -264,10 +272,74 @@ Invoke-WebRequest -UseBasicParsing ($base+'images/m7_01.webp?v=<commit>') -Metho
 1. Проверить `git status`.
 2. Определить номера карточек из запроса.
 3. Сжать фото в `images/mN_01.webp...`.
-4. Добавить объекты в `MODELS` в `index.html`.
+4. Добавить объекты в `models` нужной категории в `index.html`.
 5. Проверить, что все пути существуют.
 6. Запустить локальный сервер и проверить `200` для HTML и всех новых фото.
 7. `git add`, `git commit`, `git push`.
 8. Дождаться GitHub Pages.
 9. Проверить публичный HTML и новые файлы.
 10. Ответить пользователю кратко: что добавлено, размеры, ссылка, commit.
+
+## 14. Цены, описания и Cloudflare Worker
+
+Источник истины для цен и описаний - таблица Supabase
+`public.kombat_catalog`. Локальный `data.json` не является источником актуальных
+цен.
+
+Публичный сайт загружает каталог в таком порядке:
+
+1. Cloudflare Worker:
+   `https://school-uniform-catalog.imperia-obuvi-07.workers.dev/catalog`
+2. Резервный Supabase Edge Function:
+   `https://feloduzdmjsyuxzohnno.supabase.co/functions/v1/catalog-public`
+3. Резервный прямой REST-запрос Supabase с publishable key.
+
+Cloudflare Worker нужен потому, что отдельные мобильные операторы блокируют или
+неправильно маршрутизируют домены `*.supabase.co`. В таком случае карточки с
+GitHub Pages открываются, но без Worker не появляются цены и описания.
+
+Правила безопасности Worker:
+
+- разрешены только `GET` и `OPTIONS`;
+- запись через Worker запрещена ответом `405`;
+- наружу возвращаются только `id`, `price_old`, `price_new`, `description`;
+- используется только Supabase publishable key, не `service_role`;
+- ответы имеют `Cache-Control: no-store`, чтобы обновления появлялись сразу;
+- CORS открыт через `Access-Control-Allow-Origin: *`, потому что данные каталога
+  публичные и Worker не принимает изменения.
+
+Файлы Worker:
+
+- `cloudflare/catalog-proxy.js`
+- `wrangler.jsonc`
+
+Проверка авторизации Cloudflare:
+
+```powershell
+npx.cmd --yes wrangler@latest whoami
+```
+
+Проверка сборки:
+
+```powershell
+npx.cmd --yes wrangler@latest deploy --dry-run
+```
+
+Публикация:
+
+```powershell
+npx.cmd --yes wrangler@latest deploy
+```
+
+После публикации проверить:
+
+```powershell
+Invoke-WebRequest -UseBasicParsing `
+  https://school-uniform-catalog.imperia-obuvi-07.workers.dev/catalog
+```
+
+Ожидается `200`, JSON-массив из 26 записей и заголовок
+`Cache-Control: no-store`.
+
+Важно: `admin.html` читает данные через Worker, но сохранение выполняет напрямую
+в Supabase. Не добавлять в клиент или Worker ключ `service_role`.
