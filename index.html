@@ -796,6 +796,17 @@ try {
             desc: item.description || ''
           };
         });
+        // Если пользователь уже открыл категорию или модель, обновляем отображение
+        if (typeof currentCategory !== 'undefined' && currentCategory && typeof openCategory === 'function') {
+          if (document.getElementById('catView') && document.getElementById('catView').classList.contains('open')) {
+            openCategory(currentCategory);
+          }
+        }
+        if (typeof currentModel !== 'undefined' && currentModel && typeof prepareModel === 'function') {
+          if (document.getElementById('detail') && document.getElementById('detail').classList.contains('open')) {
+            prepareModel(currentModel);
+          }
+        }
       }
     }).catch(()=>{});
   }

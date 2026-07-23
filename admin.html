@@ -272,23 +272,7 @@ try {
 
 // Функция загрузки из базы / файла
 async function loadFromCloud() {
-  if (db) {
-    try {
-      const { data, error } = await db.from('kombat_catalog').select('*');
-      if (data && data.length > 0) {
-        data.forEach(item => {
-          store[item.id] = {
-            priceOld: item.price_old || '',
-            priceNew: item.price_new || '',
-            desc: item.description || ''
-          };
-        });
-        localStorage.setItem('kombat_catalog_data', JSON.stringify(store));
-      }
-    } catch(e) {}
-  }
-
-  // Сначала подтягиваем базовый data.json
+  // 1. Сначала загружаем дефолты из data.json
   try {
     const res = await fetch('data.json');
     if (res.ok) {
@@ -296,6 +280,24 @@ async function loadFromCloud() {
       store = Object.assign({}, localJson, store);
     }
   } catch(e) {}
+
+  // 2. Затем подтягиваем ДЕЙСТВИТЕЛЬНЫЕ данные из Supabase (они главный приоритет)
+  if (db) {
+    try {
+      const { data, error } = await db.from('kombat_catalog').select('*');
+      if (data && data.length > 0) {
+        data.forEach(item => {
+          // Если в Supabase заполнены значения, перезаписываем
+          store[item.id] = {
+            priceOld: item.price_old || (store[item.id] ? store[item.id].priceOld : ''),
+            priceNew: item.price_new || (store[item.id] ? store[item.id].priceNew : ''),
+            desc: item.description || (store[item.id] ? store[item.id].desc : '')
+          };
+        });
+        localStorage.setItem('kombat_catalog_data', JSON.stringify(store));
+      }
+    } catch(e) {}
+  }
 }
 
 async function checkPin() {
