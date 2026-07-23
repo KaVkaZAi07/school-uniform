@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Supabase JS Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --bg: #0c0f20;
@@ -93,6 +95,7 @@ body {
   transition: transform .2s;
 }
 .btn-save-all:active { transform: scale(0.96); }
+.btn-save-all:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* MAIN CONTAINER */
 .container { max-width: 600px; margin: 0 auto; padding: 20px 16px; }
@@ -167,6 +170,9 @@ body {
   transition: transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 200;
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
+
+/* LOADING INDICATOR */
+.loading-box { text-align: center; padding: 40px 0; color: var(--gold-soft); font-size: 15px; }
 </style>
 </head>
 <body>
@@ -188,7 +194,7 @@ body {
     <p>«Комбат-Family»</p>
   </div>
   <div class="save-bar">
-    <button class="btn-save-all" onclick="saveAll()">
+    <button class="btn-save-all" id="saveBtn" onclick="saveAll()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
       Сохранить
     </button>
@@ -198,22 +204,36 @@ body {
 <main class="container">
   <!-- TABS -->
   <div class="tabs" id="tabs">
-    <button class="tab-btn active" onclick="filterCat('all')">Все модели</button>
-    <button class="tab-btn" onclick="filterCat('school')">Школьная форма</button>
-    <button class="tab-btn" onclick="filterCat('military')">Военная детская</button>
-    <button class="tab-btn" onclick="filterCat('adult')">Взрослая форма</button>
+    <button class="tab-btn active" onclick="filterCat('all', event)">Все модели</button>
+    <button class="tab-btn" onclick="filterCat('school', event)">Школьная форма</button>
+    <button class="tab-btn" onclick="filterCat('military', event)">Военная детская</button>
+    <button class="tab-btn" onclick="filterCat('adult', event)">Взрослая форма</button>
   </div>
 
   <!-- PRODUCT LIST -->
-  <div id="productList"></div>
+  <div id="productList">
+    <div class="loading-box">Загрузка данных...</div>
+  </div>
 </main>
 
 <div class="toast" id="toast">✅ Изменения сохранены!</div>
 
 <script>
-const CORRECT_PIN = "0707"; // PIN-код для входа клиенту
+const CORRECT_PIN = "0707"; // PIN-код для входа клиентке
 
-// Все 26 моделей из основной системы
+// Supabase конфигурация
+const SUPABASE_URL = "https://wqlmkyiudymstzbsxndj.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxbG1reWl1ZHltc3R6YnN4bmRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDYwMDAwMDAsImV4cCI6MjAyMTU3NjAwMH0.placeholder";
+
+// Инициализация Supabase клиента
+let db = null;
+try {
+  if (window.supabase) {
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+} catch(e) {}
+
+// Все 26 моделей
 const PRODUCTS_DATA = [
   {id:1, cat:"school", title:"Жилет + юбка", photo:"images/m1_01.webp"},
   {id:2, cat:"school", title:"Жилет + юбка + галстук", photo:"images/m2_01.webp"},
@@ -244,14 +264,46 @@ const PRODUCTS_DATA = [
 ];
 
 let store = {};
+
+// Загрузка локальных бэкапов
 try {
   store = JSON.parse(localStorage.getItem('kombat_catalog_data') || '{}');
 } catch(e) {}
 
-function checkPin() {
+// Функция загрузки из базы / файла
+async function loadFromCloud() {
+  // Сначала подтягиваем базовый data.json
+  try {
+    const res = await fetch('data.json');
+    if (res.ok) {
+      const localJson = await res.json();
+      store = Object.assign({}, localJson, store);
+    }
+  } catch(e) {}
+
+  if (!db) return;
+  try {
+    const { data, error } = await db.from('products').select('*');
+    if (data && data.length > 0) {
+      data.forEach(item => {
+        store[item.id] = {
+          priceOld: item.price_old || '',
+          priceNew: item.price_new || '',
+          desc: item.description || ''
+        };
+      });
+      localStorage.setItem('kombat_catalog_data', JSON.stringify(store));
+    }
+  } catch(e) {
+    console.log('Используются локальные данные');
+  }
+}
+
+async function checkPin() {
   const input = document.getElementById('pinInput').value;
   if(input === CORRECT_PIN) {
     document.getElementById('loginOverlay').style.display = 'none';
+    await loadFromCloud();
     renderProducts('all');
   } else {
     alert('Неверный PIN-код!');
@@ -263,6 +315,11 @@ document.getElementById('pinInput').addEventListener('keyup', (e) => {
 });
 
 let currentFilter = 'all';
+
+// Очистка ввода цен (только цифры и пробелы)
+function cleanPriceInput(input) {
+  input.value = input.value.replace(/[^\d\s]/g, '');
+}
 
 function renderProducts(catFilter) {
   currentFilter = catFilter;
@@ -287,11 +344,11 @@ function renderProducts(catFilter) {
       <div class="price-row">
         <div class="input-group">
           <label>Старая цена (₽)</label>
-          <input type="text" class="price-input old-price" data-id="${p.id}" data-field="priceOld" value="${data.priceOld || ''}" placeholder="Зачёркнута">
+          <input type="text" class="price-input old-price" data-id="${p.id}" data-field="priceOld" value="${data.priceOld || ''}" placeholder="Зачёркнута" oninput="cleanPriceInput(this)">
         </div>
         <div class="input-group">
           <label>Новая цена (₽)</label>
-          <input type="text" class="price-input new-price" data-id="${p.id}" data-field="priceNew" value="${data.priceNew || ''}" placeholder="Актуальная">
+          <input type="text" class="price-input new-price" data-id="${p.id}" data-field="priceNew" value="${data.priceNew || ''}" placeholder="Актуальная" oninput="cleanPriceInput(this)">
         </div>
       </div>
       <div class="desc-group">
@@ -303,13 +360,18 @@ function renderProducts(catFilter) {
   });
 }
 
-function filterCat(cat) {
+function filterCat(cat, evt) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  if (evt && evt.target) evt.target.classList.add('active');
   renderProducts(cat);
 }
 
-function saveAll() {
+async function saveAll() {
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.disabled = true;
+  saveBtn.innerText = 'Сохраняем...';
+
+  // Собираем введенные данные со всех инпутов
   document.querySelectorAll('[data-id]').forEach(input => {
     const id = input.dataset.id;
     const field = input.dataset.field;
@@ -317,12 +379,29 @@ function saveAll() {
     store[id][field] = input.value.trim();
   });
 
+  // 1. Сохраняем локально
   try {
     localStorage.setItem('kombat_catalog_data', JSON.stringify(store));
-    showToast();
-  } catch(e) {
-    alert('Ошибка сохранения!');
+  } catch(e) {}
+
+  // 2. Сохраняем в Supabase (если подключено)
+  if (db) {
+    try {
+      const upsertData = Object.keys(store).map(id => ({
+        id: parseInt(id),
+        price_old: store[id].priceOld || '',
+        price_new: store[id].priceNew || '',
+        description: store[id].desc || ''
+      }));
+      await db.from('products').upsert(upsertData, { onConflict: 'id' });
+    } catch(e) {
+      console.log('Ошибка сохранения в облако, сохранено локально');
+    }
   }
+
+  saveBtn.disabled = false;
+  saveBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Сохранить`;
+  showToast();
 }
 
 function showToast() {

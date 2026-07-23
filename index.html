@@ -289,17 +289,17 @@ img{display:block;width:100%;height:auto}
 
 /* MODEL PRICE & DESC IN DETAIL MODAL */
 .model-meta-box{position:absolute;bottom:88px;left:18px;right:18px;z-index:12;
-  display:flex;flex-direction:column;gap:8px;pointer-events:none}
+  display:flex;flex-direction:column;gap:8px;pointer-events:auto}
 .model-price-badge{display:inline-flex;align-items:baseline;gap:10px;padding:8px 16px;
-  background:rgba(12,15,32,0.85);border:1px solid var(--border);border-radius:30px;
+  background:rgba(12,15,32,0.85);border:1px solid var(--line);border-radius:30px;
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   width:fit-content;box-shadow:0 8px 24px rgba(0,0,0,0.5)}
-.price-old-val{font-size:14px;color:var(--red,#ff5c5c);text-decoration:line-through;font-weight:600}
+.price-old-val{font-size:14px;color:#ff5c5c;text-decoration:line-through;font-weight:600}
 .price-new-val{font-size:18px;color:#30d170;font-weight:700}
 .model-desc-badge{padding:10px 14px;background:rgba(12,15,32,0.82);border:1px solid rgba(255,255,255,0.12);
   border-radius:14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   color:var(--ink);font-size:13px;line-height:1.45;max-height:90px;overflow-y:auto;
-  box-shadow:0 8px 24px rgba(0,0,0,0.5)}
+  box-shadow:0 8px 24px rgba(0,0,0,0.5);pointer-events:auto}
 [data-theme="day"] .model-price-badge, [data-theme="day"] .model-desc-badge{
   background:rgba(255,255,255,0.92);border-color:rgba(170,124,46,0.25);color:#0b192c;
   box-shadow:0 8px 24px rgba(0,0,0,0.12)}
@@ -768,6 +768,15 @@ function catByModelId(mid){return CATEGORIES.find(c=>c.models.some(m=>String(m.i
 function modelName(m){return m.title||('Модель '+m.id);}
 let CATALOG_STORE={};
 try{CATALOG_STORE=JSON.parse(localStorage.getItem('kombat_catalog_data')||'{}');}catch(e){}
+
+// Fetch global product prices from data.json for all visitors
+fetch('data.json')
+  .then(res=>res.json())
+  .then(remoteData=>{
+    if(remoteData){
+      CATALOG_STORE=Object.assign({}, remoteData, CATALOG_STORE);
+    }
+  }).catch(()=>{});
 
 function getModelData(mid){
   return CATALOG_STORE[mid]||{};
