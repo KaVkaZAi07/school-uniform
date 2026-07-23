@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Управление каталогом | Комбат-Family</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -224,6 +227,7 @@ const CORRECT_PIN = "0707"; // PIN-код для входа клиентке
 // Supabase конфигурация
 const SUPABASE_URL = "https://feloduzdmjsyuxzohnno.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jl94eUNinaoBPXBeCacaiw_kVP-idH4";
+const PUBLIC_CATALOG_URL = SUPABASE_URL + "/functions/v1/catalog-public";
 
 // Инициализация Supabase клиента
 let db = null;
@@ -270,13 +274,18 @@ try { localStorage.removeItem('kombat_catalog_data'); } catch(e) {}
 // Supabase is the only authoritative source for catalog data.
 async function loadFromCloud() {
   try {
-    const res = await fetch(SUPABASE_URL + '/rest/v1/kombat_catalog?select=id,price_old,price_new,description&order=id.asc', {
+    let res = await fetch(PUBLIC_CATALOG_URL + '?v=' + Date.now(), {
       cache: 'no-store',
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Accept': 'application/json'
-      }
+      mode: 'cors',
+      headers: {'Accept': 'application/json'}
     });
+    if (!res.ok) {
+      res = await fetch(SUPABASE_URL + '/rest/v1/kombat_catalog?select=id,price_old,price_new,description&order=id.asc', {
+        cache: 'no-store',
+        mode: 'cors',
+        headers: {'apikey': SUPABASE_ANON_KEY, 'Accept': 'application/json'}
+      });
+    }
     if (!res.ok) throw new Error('Catalog request failed: ' + res.status);
     const fetchedData = await res.json();
     if (!Array.isArray(fetchedData)) throw new Error('Invalid catalog response');

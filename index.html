@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#0c0f20">
 <meta name="description" content="Комбат-Family — швейное производство, пошив фирменной одежды. Школьная форма, военная детская форма, взрослая форма. ИП Метова Жанна Муаедовна, КБР, Нарткала.">
 <meta property="og:title" content="Комбат-Family — Школьная и военная форма">
@@ -785,6 +788,7 @@ try{localStorage.removeItem('kombat_catalog_data');}catch(e){}
 // Supabase интеграция
 const SUPABASE_URL = "https://feloduzdmjsyuxzohnno.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jl94eUNinaoBPXBeCacaiw_kVP-idH4";
+const PUBLIC_CATALOG_URL = SUPABASE_URL + "/functions/v1/catalog-public";
 let catalogLoadPromise=null;
 
 function applySupabaseData(dataList) {
@@ -816,19 +820,35 @@ function applySupabaseData(dataList) {
 async function loadCatalogData(){
   if(catalogLoadPromise)return catalogLoadPromise;
   catalogLoadPromise=(async()=>{
+    document.documentElement.dataset.catalogStatus='loading';
     try{
-      const requestUrl=SUPABASE_URL+'/rest/v1/kombat_catalog?select=id,price_old,price_new,description&order=id.asc';
-      const response=await fetch(requestUrl,{
+      const response=await fetch(PUBLIC_CATALOG_URL+'?v='+Date.now(),{
         cache:'no-store',
-        headers:{
-          'apikey':SUPABASE_ANON_KEY,
-          'Accept':'application/json'
-        }
+        mode:'cors',
+        headers:{'Accept':'application/json'}
       });
-      if(!response.ok)throw new Error('Catalog request failed: '+response.status);
+      if(!response.ok)throw new Error('Public catalog request failed: '+response.status);
       const data=await response.json();
-      if(Array.isArray(data))applySupabaseData(data);
-    }catch(e){}
+      if(!Array.isArray(data))throw new Error('Invalid public catalog response');
+      applySupabaseData(data);
+      document.documentElement.dataset.catalogStatus='ready';
+    }catch(publicError){
+      try{
+        const fallbackUrl=SUPABASE_URL+'/rest/v1/kombat_catalog?select=id,price_old,price_new,description&order=id.asc';
+        const fallbackResponse=await fetch(fallbackUrl,{
+          cache:'no-store',
+          mode:'cors',
+          headers:{'apikey':SUPABASE_ANON_KEY,'Accept':'application/json'}
+        });
+        if(!fallbackResponse.ok)throw new Error('Catalog fallback failed: '+fallbackResponse.status);
+        const fallbackData=await fallbackResponse.json();
+        if(!Array.isArray(fallbackData))throw new Error('Invalid catalog fallback response');
+        applySupabaseData(fallbackData);
+        document.documentElement.dataset.catalogStatus='ready';
+      }catch(fallbackError){
+        document.documentElement.dataset.catalogStatus='error';
+      }
+    }
   })();
   try{await catalogLoadPromise;}finally{catalogLoadPromise=null;}
 }
@@ -842,6 +862,7 @@ loadCatalogData();
 window.addEventListener('pageshow',refreshCatalogWhenVisible);
 window.addEventListener('focus',refreshCatalogWhenVisible);
 document.addEventListener('visibilitychange',refreshCatalogWhenVisible);
+setInterval(refreshCatalogWhenVisible,15000);
 
 function getModelData(mid){
   return CATALOG_STORE[mid]||{};

@@ -1,0 +1,3 @@
+[functions.catalog-public]
+verify_jwt = false
+entrypoint = "./functions/catalog-public/index.ts"
