@@ -778,7 +778,7 @@ let db = null;
 try {
   if (window.supabase) {
     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    db.from('products').select('*').then(res => {
+    db.from('kombat_catalog').select('*').then(res => {
       if (res.data && res.data.length > 0) {
         res.data.forEach(item => {
           CATALOG_STORE[item.id] = {

@@ -272,6 +272,22 @@ try {
 
 // Функция загрузки из базы / файла
 async function loadFromCloud() {
+  if (db) {
+    try {
+      const { data, error } = await db.from('kombat_catalog').select('*');
+      if (data && data.length > 0) {
+        data.forEach(item => {
+          store[item.id] = {
+            priceOld: item.price_old || '',
+            priceNew: item.price_new || '',
+            desc: item.description || ''
+          };
+        });
+        localStorage.setItem('kombat_catalog_data', JSON.stringify(store));
+      }
+    } catch(e) {}
+  }
+
   // Сначала подтягиваем базовый data.json
   try {
     const res = await fetch('data.json');
@@ -280,23 +296,6 @@ async function loadFromCloud() {
       store = Object.assign({}, localJson, store);
     }
   } catch(e) {}
-
-  if (!db) return;
-  try {
-    const { data, error } = await db.from('products').select('*');
-    if (data && data.length > 0) {
-      data.forEach(item => {
-        store[item.id] = {
-          priceOld: item.price_old || '',
-          priceNew: item.price_new || '',
-          desc: item.description || ''
-        };
-      });
-      localStorage.setItem('kombat_catalog_data', JSON.stringify(store));
-    }
-  } catch(e) {
-    console.log('Используются локальные данные');
-  }
 }
 
 async function checkPin() {
@@ -379,12 +378,12 @@ async function saveAll() {
     store[id][field] = input.value.trim();
   });
 
-  // 1. Сохраняем локально
+  // 1. Сохраняем локально на устройстве
   try {
     localStorage.setItem('kombat_catalog_data', JSON.stringify(store));
   } catch(e) {}
 
-  // 2. Сохраняем в Supabase (если подключено)
+  // 2. Сохраняем в Supabase
   if (db) {
     try {
       const upsertData = Object.keys(store).map(id => ({
@@ -393,7 +392,7 @@ async function saveAll() {
         price_new: store[id].priceNew || '',
         description: store[id].desc || ''
       }));
-      await db.from('products').upsert(upsertData, { onConflict: 'id' });
+      await db.from('kombat_catalog').upsert(upsertData, { onConflict: 'id' });
     } catch(e) {
       console.log('Ошибка сохранения в облако, сохранено локально');
     }
