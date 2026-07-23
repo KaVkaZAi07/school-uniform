@@ -270,11 +270,11 @@ try { localStorage.removeItem('kombat_catalog_data'); } catch(e) {}
 // Supabase is the only authoritative source for catalog data.
 async function loadFromCloud() {
   try {
-    const res = await fetch(SUPABASE_URL + '/rest/v1/kombat_catalog?select=id,price_old,price_new,description&order=id.asc&_t=' + Date.now(), {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/kombat_catalog?select=id,price_old,price_new,description&order=id.asc', {
       cache: 'no-store',
       headers: {
         'apikey': SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+        'Accept': 'application/json'
       }
     });
     if (!res.ok) throw new Error('Catalog request failed: ' + res.status);
@@ -409,7 +409,6 @@ async function saveAll() {
         method: 'POST',
         headers: {
           'apikey': SUPABASE_ANON_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
           'Content-Type': 'application/json',
           'Prefer': 'resolution=merge-duplicates'
         },

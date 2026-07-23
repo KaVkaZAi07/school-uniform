@@ -817,12 +817,12 @@ async function loadCatalogData(){
   if(catalogLoadPromise)return catalogLoadPromise;
   catalogLoadPromise=(async()=>{
     try{
-      const requestUrl=SUPABASE_URL+'/rest/v1/kombat_catalog?select=id,price_old,price_new,description&order=id.asc&_t='+Date.now();
+      const requestUrl=SUPABASE_URL+'/rest/v1/kombat_catalog?select=id,price_old,price_new,description&order=id.asc';
       const response=await fetch(requestUrl,{
         cache:'no-store',
         headers:{
           'apikey':SUPABASE_ANON_KEY,
-          'Authorization':'Bearer '+SUPABASE_ANON_KEY
+          'Accept':'application/json'
         }
       });
       if(!response.ok)throw new Error('Catalog request failed: '+response.status);
