@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="night">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Управление каталогом | Комбат-Family</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0f20;
+  --bg-card: rgba(20, 27, 62, 0.75);
+  --border: rgba(205, 168, 107, 0.25);
+  --ink: #f4f2eb;
+  --muted: #aab6cf;
+  --gold: #cda86b;
+  --gold-soft: #e3c894;
+  --green: #25D366;
+  --red: #ff5c5c;
+  --shadow: 0 12px 32px -8px rgba(0,0,0,0.6);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Manrope', system-ui, sans-serif;
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+/* LOGIN OVERLAY */
+.login-overlay {
+  position: fixed; inset:0; z-index:100;
+  background: rgba(8, 11, 24, 0.96);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.login-box {
+  background: linear-gradient(145deg, rgba(20, 30, 62, 0.9), rgba(12, 18, 40, 0.95));
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 32px 24px;
+  width: 100%; max-width: 360px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+}
+.login-box h2 {
+  font-family: 'Cormorant', serif;
+  font-size: 28px; font-weight: 500;
+  color: var(--gold-soft); margin-bottom: 8px;
+}
+.login-box p { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+.pin-input {
+  width: 100%; padding: 14px;
+  font-size: 24px; letter-spacing: 8px; text-align: center;
+  background: rgba(0,0,0,0.4); border: 1.5px solid var(--border);
+  border-radius: 14px; color: #fff; outline: none; margin-bottom: 20px;
+  transition: border-color .3s;
+}
+.pin-input:focus { border-color: var(--gold); }
+.btn-primary {
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg, var(--gold), #aa7c2e);
+  border: none; border-radius: 14px;
+  color: #120c04; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: transform .2s, box-shadow .2s;
+  box-shadow: 0 8px 20px -6px rgba(205,168,107,0.4);
+}
+.btn-primary:active { transform: scale(0.98); }
+
+/* HEADER */
+.header {
+  position: sticky; top:0; z-index:50;
+  background: rgba(12, 15, 32, 0.92);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header-title h1 { font-family: 'Cormorant', serif; font-size: 22px; color: var(--gold-soft); }
+.header-title p { font-size: 11px; color: var(--muted); }
+.save-bar {
+  display: flex; gap: 10px; align-items: center;
+}
+.btn-save-all {
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #25D366, #1da851);
+  border: none; border-radius: 30px;
+  color: #fff; font-size: 13px; font-weight: 700;
+  cursor: pointer; box-shadow: 0 6px 16px -4px rgba(37,211,102,0.4);
+  display: flex; align-items: center; gap: 6px;
+  transition: transform .2s;
+}
+.btn-save-all:active { transform: scale(0.96); }
+
+/* MAIN CONTAINER */
+.container { max-width: 600px; margin: 0 auto; padding: 20px 16px; }
+
+/* CATEGORY TABS */
+.tabs {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 16px;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab-btn {
+  padding: 8px 16px; border-radius: 20px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  color: var(--muted); font-size: 12px; font-weight: 600; white-space: nowrap;
+  cursor: pointer; transition: all .25s;
+}
+.tab-btn.active {
+  background: var(--gold); color: #100b03; border-color: var(--gold);
+}
+
+/* PRODUCT EDIT CARD */
+.product-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 16px; margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 14px;
+}
+.card-header {
+  display: flex; gap: 14px; align-items: center;
+}
+.thumb {
+  width: 64px; height: 80px; border-radius: 12px; object-fit: cover;
+  border: 1px solid var(--border); flex-shrink: 0;
+}
+.card-info { flex: 1; min-width: 0; }
+.card-info .model-id { font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; }
+.card-info .model-title { font-family: 'Cormorant', serif; font-size: 19px; color: #fff; margin-top: 2px; line-height: 1.2; }
+
+.price-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.input-group { display: flex; flex-direction: column; gap: 6px; }
+.input-group label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.price-input {
+  width: 100%; padding: 10px 12px;
+  background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px; color: #fff; font-size: 15px; font-weight: 600;
+  outline: none; transition: border-color .2s;
+}
+.price-input:focus { border-color: var(--gold); }
+.price-input.old-price { color: var(--red); text-decoration: line-through; }
+.price-input.new-price { color: #52e085; }
+
+.desc-group { display: flex; flex-direction: column; gap: 6px; }
+.desc-group label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.desc-input {
+  width: 100%; min-height: 72px; padding: 10px 12px;
+  background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px; color: #fff; font-size: 13px; font-family: inherit;
+  outline: none; resize: vertical; line-height: 1.4;
+  transition: border-color .2s;
+}
+.desc-input:focus { border-color: var(--gold); }
+
+/* NOTIFICATION TOAST */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: #25D366; color: #000; font-weight: 700; font-size: 14px;
+  padding: 12px 24px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  transition: transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 200;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <h2>Админ-Панель</h2>
+    <p>Введите PIN-код для редактирования цен и описаний</p>
+    <input type="password" class="pin-input" id="pinInput" placeholder="••••" maxlength="6" inputmode="numeric">
+    <button class="btn-primary" onclick="checkPin()">Войти</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-title">
+    <h1>Редактор каталога</h1>
+    <p>«Комбат-Family»</p>
+  </div>
+  <div class="save-bar">
+    <button class="btn-save-all" onclick="saveAll()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Сохранить
+    </button>
+  </div>
+</header>
+
+<main class="container">
+  <!-- TABS -->
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" onclick="filterCat('all')">Все модели</button>
+    <button class="tab-btn" onclick="filterCat('school')">Школьная форма</button>
+    <button class="tab-btn" onclick="filterCat('military')">Военная детская</button>
+    <button class="tab-btn" onclick="filterCat('adult')">Взрослая форма</button>
+  </div>
+
+  <!-- PRODUCT LIST -->
+  <div id="productList"></div>
+</main>
+
+<div class="toast" id="toast">✅ Изменения сохранены!</div>
+
+<script>
+const CORRECT_PIN = "0707"; // PIN-код для входа клиенту
+
+// Все 26 моделей из основной системы
+const PRODUCTS_DATA = [
+  {id:1, cat:"school", title:"Жилет + юбка", photo:"images/m1_01.webp"},
+  {id:2, cat:"school", title:"Жилет + юбка + галстук", photo:"images/m2_01.webp"},
+  {id:3, cat:"school", title:"Жилет + юбка 40-56", photo:"images/m3_01.webp"},
+  {id:4, cat:"school", title:"Костюм тройка для мальчиков", photo:"images/m4_01.webp"},
+  {id:5, cat:"school", title:"Школьный бомбер для девочки", photo:"images/m5_01.webp"},
+  {id:6, cat:"school", title:"Жилет + юбка + галстук 116-164", photo:"images/m6_01.webp"},
+  {id:7, cat:"school", title:"Бомбер + брюки для мальчиков 122–164", photo:"images/m7_01.webp"},
+  {id:8, cat:"school", title:"Школьный костюм бомбер + брюки 42–56", photo:"images/m8_01.webp"},
+  {id:9, cat:"military", title:"Кадетская форма для мальчиков", photo:"images/m9_01.webp"},
+  {id:10, cat:"military", title:"Форма камуфляжная синяя для девочек", photo:"images/m10_01.webp"},
+  {id:11, cat:"military", title:"Кадетская форма для девочек", photo:"images/m11_01.webp"},
+  {id:12, cat:"school", title:"Бомбер + брюки палаццо для девочек", photo:"images/m12_01.webp"},
+  {id:13, cat:"military", title:"Форма камуфляжная синяя для мальчиков", photo:"images/m13_01.webp"},
+  {id:14, cat:"school", title:"Поло + классические брюки для мальчиков", photo:"images/m14_01.webp"},
+  {id:15, cat:"military", title:"Кадетский брючный комплект для мальчиков", photo:"images/m15_01.webp"},
+  {id:16, cat:"military", title:"Кадетский комплект с юбкой для девочек", photo:"images/m16_01.webp"},
+  {id:17, cat:"school", title:"Жилет бордо + юбка плиссе для девочек", photo:"images/m17_01.webp"},
+  {id:18, cat:"adult", title:"Юбка МЧС 40–56", photo:"images/m18_01.webp"},
+  {id:19, cat:"adult", title:"Женский костюм полиции МВД 42–56", photo:"images/m19_01.webp"},
+  {id:20, cat:"adult", title:"Костюм полиции с юбкой 42–56", photo:"images/m20_01.webp"},
+  {id:21, cat:"adult", title:"Женский костюм ФСИН 42–56", photo:"images/m21_01.webp"},
+  {id:22, cat:"adult", title:"ФСИН летняя офисная форма 42–56", photo:"images/m22_01.webp"},
+  {id:23, cat:"school", title:"Жилет бордо + брюки для мальчиков", photo:"images/m23_01.webp"},
+  {id:24, cat:"school", title:"Жилет бордо + юбка плиссе 116–164", photo:"images/m24_01.webp"},
+  {id:25, cat:"school", title:"Жилет бордо + брюки 122–164", photo:"images/m25_01.webp"},
+  {id:26, cat:"school", title:"Жилет бордо + юбка макси для девочек", photo:"images/m26_01.webp"}
+];
+
+let store = {};
+try {
+  store = JSON.parse(localStorage.getItem('kombat_catalog_data') || '{}');
+} catch(e) {}
+
+function checkPin() {
+  const input = document.getElementById('pinInput').value;
+  if(input === CORRECT_PIN) {
+    document.getElementById('loginOverlay').style.display = 'none';
+    renderProducts('all');
+  } else {
+    alert('Неверный PIN-код!');
+  }
+}
+
+document.getElementById('pinInput').addEventListener('keyup', (e) => {
+  if(e.key === 'Enter') checkPin();
+});
+
+let currentFilter = 'all';
+
+function renderProducts(catFilter) {
+  currentFilter = catFilter;
+  const container = document.getElementById('productList');
+  container.innerHTML = '';
+
+  const filtered = PRODUCTS_DATA.filter(p => catFilter === 'all' || p.cat === catFilter);
+
+  filtered.forEach(p => {
+    const data = store[p.id] || { priceOld: '', priceNew: '', desc: '' };
+    
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.innerHTML = `
+      <div class="card-header">
+        <img src="${p.photo}" class="thumb" alt="${p.title}">
+        <div class="card-info">
+          <div class="model-id">Модель #${p.id}</div>
+          <div class="model-title">${p.title}</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <div class="input-group">
+          <label>Старая цена (₽)</label>
+          <input type="text" class="price-input old-price" data-id="${p.id}" data-field="priceOld" value="${data.priceOld || ''}" placeholder="Зачёркнута">
+        </div>
+        <div class="input-group">
+          <label>Новая цена (₽)</label>
+          <input type="text" class="price-input new-price" data-id="${p.id}" data-field="priceNew" value="${data.priceNew || ''}" placeholder="Актуальная">
+        </div>
+      </div>
+      <div class="desc-group">
+        <label>Описание и размеры</label>
+        <textarea class="desc-input" data-id="${p.id}" data-field="desc" placeholder="Ткань габардин, качественный пошив, размеры 42-56...">${data.desc || ''}</textarea>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function filterCat(cat) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderProducts(cat);
+}
+
+function saveAll() {
+  document.querySelectorAll('[data-id]').forEach(input => {
+    const id = input.dataset.id;
+    const field = input.dataset.field;
+    if(!store[id]) store[id] = {};
+    store[id][field] = input.value.trim();
+  });
+
+  try {
+    localStorage.setItem('kombat_catalog_data', JSON.stringify(store));
+    showToast();
+  } catch(e) {
+    alert('Ошибка сохранения!');
+  }
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

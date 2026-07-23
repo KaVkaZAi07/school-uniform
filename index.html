@@ -242,6 +242,13 @@ img{display:block;width:100%;height:auto}
 .card img{width:100%;height:100%;object-fit:cover;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
 .card:hover img{transform:scale(1.05)}
 .card .sheen{position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.12),transparent 40%);pointer-events:none}
+.card .card-price-tag{position:absolute;bottom:10px;left:10px;right:10px;z-index:3;
+  padding:4px 8px;border-radius:12px;background:rgba(12,15,32,0.85);border:1px solid rgba(255,255,255,0.15);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:700}
+.card .card-price-tag .p-old{color:var(--red,#ff5c5c);text-decoration:line-through;font-size:11px}
+.card .card-price-tag .p-new{color:#30d170}
+[data-theme="day"] .card .card-price-tag{background:rgba(255,255,255,0.92);border-color:rgba(170,124,46,0.3);color:#0b192c}
 .card.ph{display:flex;align-items:center;justify-content:center;background:linear-gradient(150deg,rgba(20,30,56,.8),rgba(14,20,40,.8));cursor:default}
 .card.ph::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.05) 50%,transparent 70%);
   background-size:220% 100%;animation:shimmer 3.4s linear infinite}
@@ -280,7 +287,24 @@ img{display:block;width:100%;height:auto}
 .dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.28);transition:all .3s}
 .dots i.on{background:var(--gold);width:20px;border-radius:4px}
 
-.cta-bar{position:absolute;bottom:0;left:0;right:0;padding:18px 18px calc(env(safe-area-inset-bottom,0px) + 22px);
+/* MODEL PRICE & DESC IN DETAIL MODAL */
+.model-meta-box{position:absolute;bottom:88px;left:18px;right:18px;z-index:12;
+  display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.model-price-badge{display:inline-flex;align-items:baseline;gap:10px;padding:8px 16px;
+  background:rgba(12,15,32,0.85);border:1px solid var(--border);border-radius:30px;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  width:fit-content;box-shadow:0 8px 24px rgba(0,0,0,0.5)}
+.price-old-val{font-size:14px;color:var(--red,#ff5c5c);text-decoration:line-through;font-weight:600}
+.price-new-val{font-size:18px;color:#30d170;font-weight:700}
+.model-desc-badge{padding:10px 14px;background:rgba(12,15,32,0.82);border:1px solid rgba(255,255,255,0.12);
+  border-radius:14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  color:var(--ink);font-size:13px;line-height:1.45;max-height:90px;overflow-y:auto;
+  box-shadow:0 8px 24px rgba(0,0,0,0.5)}
+[data-theme="day"] .model-price-badge, [data-theme="day"] .model-desc-badge{
+  background:rgba(255,255,255,0.92);border-color:rgba(170,124,46,0.25);color:#0b192c;
+  box-shadow:0 8px 24px rgba(0,0,0,0.12)}
+
+.cta-bar{position:absolute;bottom:0;left:0;right:0;padding:14px 18px calc(env(safe-area-inset-bottom,0px) + 16px);
   background:var(--cta-fade);z-index:10}
 .wa-btn{display:flex;align-items:center;justify-content:center;gap:11px;width:100%;
   background:linear-gradient(135deg,#25D366,#20ba5a);color:#fff;
@@ -471,6 +495,7 @@ img{display:block;width:100%;height:auto}
   </div>
   <div class="gallery" id="gallery"><div class="gtrack" id="gtrack"></div></div>
   <div class="dots" id="dots"></div>
+  <div class="model-meta-box" id="modelMetaBox"></div>
   <div class="cta-bar">
     <a class="wa-btn" id="wa" href="https://wa.me/79034909634?text=Здравствуйте!%20Интересует%20школьная%20форма%20(Модель%201)" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.15c-1.52 0-3.01-.41-4.3-1.18l-.31-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 01-1.26-4.35c0-4.54 3.7-8.23 8.25-8.23 4.54 0 8.23 3.7 8.23 8.24 0 4.54-3.69 8.23-8.22 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.01-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43-.14-.01-.31-.01-.48-.01-.17 0-.43.06-.66.31-.23.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28z"/></svg>
@@ -695,7 +720,15 @@ function openCategory(cat){
     cat.models.forEach((m,i)=>{
       const card=document.createElement('div');
       card.className='card';card.style.animationDelay=(i*0.07)+'s';
-      card.innerHTML='<img src="'+m.photos[0]+'" alt="'+m.title+'" loading="lazy"><div class="sheen"></div>';
+      const d=getModelData(m.id);
+      let pTag='';
+      if(d.priceOld||d.priceNew){
+        pTag='<div class="card-price-tag">';
+        if(d.priceOld) pTag+='<span class="p-old">'+d.priceOld+' ₽</span>';
+        if(d.priceNew) pTag+='<span class="p-new">'+d.priceNew+' ₽</span>';
+        pTag+='</div>';
+      }
+      card.innerHTML='<img src="'+m.photos[0]+'" alt="'+m.title+'" loading="lazy"><div class="sheen"></div>'+pTag;
       card.addEventListener('click',()=>openModel(m));
       cvGrid.appendChild(card);
     });
@@ -733,11 +766,42 @@ function modelById(id){return ALL_MODELS.find(m=>String(m.id)===String(id));}
 function catById(id){return CATEGORIES.find(c=>c.id===id);}
 function catByModelId(mid){return CATEGORIES.find(c=>c.models.some(m=>String(m.id)===String(mid)));}
 function modelName(m){return m.title||('Модель '+m.id);}
+let CATALOG_STORE={};
+try{CATALOG_STORE=JSON.parse(localStorage.getItem('kombat_catalog_data')||'{}');}catch(e){}
+
+function getModelData(mid){
+  return CATALOG_STORE[mid]||{};
+}
+
 function setWhatsApp(m){
-  wa.href='https://wa.me/'+waPhone+'?text='+encodeURIComponent('Здравствуйте! Интересует школьная форма ('+modelName(m)+')');
+  const d=getModelData(m.id);
+  let txt='Здравствуйте! Интересует форменная одежда: '+modelName(m);
+  if(d.priceNew) txt+=' (Цена: '+d.priceNew+' ₽)';
+  wa.href='https://wa.me/'+waPhone+'?text='+encodeURIComponent(txt);
 }
 function prepareModel(m){
   currentModel=m;galleryCar.setImages(m.photos);dtitle.textContent=modelName(m);setWhatsApp(m);
+  const metaBox=document.getElementById('modelMetaBox');
+  if(!metaBox)return;
+  metaBox.innerHTML='';
+  const d=getModelData(m.id);
+  
+  if(d.priceOld||d.priceNew){
+    const pBadge=document.createElement('div');
+    pBadge.className='model-price-badge';
+    let html='';
+    if(d.priceOld) html+='<span class="price-old-val">'+d.priceOld+' ₽</span>';
+    if(d.priceNew) html+='<span class="price-new-val">'+d.priceNew+' ₽</span>';
+    pBadge.innerHTML=html;
+    metaBox.appendChild(pBadge);
+  }
+  
+  if(d.desc){
+    const dBadge=document.createElement('div');
+    dBadge.className='model-desc-badge';
+    dBadge.textContent=d.desc;
+    metaBox.appendChild(dBadge);
+  }
 }
 function openModel(m){
   prepareModel(m);hidePhoto();showDetail();currentView='detail';pushView('detail',m.id,0);
