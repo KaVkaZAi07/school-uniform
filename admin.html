@@ -371,7 +371,7 @@ async function saveAll() {
   saveBtn.disabled = true;
   saveBtn.innerText = 'Сохраняем...';
 
-  // Собираем введенные данные со всех инпутов
+  // Собираем данные со всех полей
   document.querySelectorAll('[data-id]').forEach(input => {
     const id = input.dataset.id;
     const field = input.dataset.field;
