@@ -384,6 +384,7 @@ async function saveAll() {
   } catch(e) {}
 
   // 2. Сохраняем в Supabase
+  let cloudSuccess = true;
   if (db) {
     try {
       const upsertData = Object.keys(store).map(id => ({
@@ -392,21 +393,29 @@ async function saveAll() {
         price_new: store[id].priceNew || '',
         description: store[id].desc || ''
       }));
-      await db.from('kombat_catalog').upsert(upsertData, { onConflict: 'id' });
+      const { error } = await db.from('kombat_catalog').upsert(upsertData, { onConflict: 'id' });
+      if (error) cloudSuccess = false;
     } catch(e) {
-      console.log('Ошибка сохранения в облако, сохранено локально');
+      cloudSuccess = false;
     }
   }
 
   saveBtn.disabled = false;
   saveBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Сохранить`;
-  showToast();
+  
+  if (cloudSuccess) {
+    showToast("✅ Изменения сохранены в облако!", "#25D366");
+  } else {
+    showToast("⚠️ Сохранено локально (ошибка связи с облаком)", "#ff9800");
+  }
 }
 
-function showToast() {
+function showToast(msg, bg) {
   const t = document.getElementById('toast');
+  if (msg) t.textContent = msg;
+  if (bg) t.style.background = bg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 </script>
 </body>

@@ -896,7 +896,16 @@ function applyRoute(route){
     }else{
       cat.models.forEach((m,i)=>{
         const card=document.createElement('div');
-        card.className='card in';card.innerHTML='<img src="'+m.photos[0]+'" alt=""><div class="sheen"></div>';
+        card.className='card in';
+        const d=getModelData(m.id);
+        let pTag='';
+        if(d.priceOld||d.priceNew){
+          pTag='<div class="card-price-tag">';
+          if(d.priceOld) pTag+='<span class="p-old">'+d.priceOld+' ₽</span>';
+          if(d.priceNew) pTag+='<span class="p-new">'+d.priceNew+' ₽</span>';
+          pTag+='</div>';
+        }
+        card.innerHTML='<img src="'+m.photos[0]+'" alt="'+m.title+'" loading="lazy"><div class="sheen"></div>'+pTag;
         card.addEventListener('click',()=>openModel(m));cvGrid.appendChild(card);
       });
     }
@@ -911,7 +920,16 @@ function applyRoute(route){
     cvGrid.innerHTML='';
     parentCat.models.forEach((pm,i)=>{
       const card=document.createElement('div');
-      card.className='card in';card.innerHTML='<img src="'+pm.photos[0]+'" alt=""><div class="sheen"></div>';
+      card.className='card in';
+      const d=getModelData(pm.id);
+      let pTag='';
+      if(d.priceOld||d.priceNew){
+        pTag='<div class="card-price-tag">';
+        if(d.priceOld) pTag+='<span class="p-old">'+d.priceOld+' ₽</span>';
+        if(d.priceNew) pTag+='<span class="p-new">'+d.priceNew+' ₽</span>';
+        pTag+='</div>';
+      }
+      card.innerHTML='<img src="'+pm.photos[0]+'" alt="'+pm.title+'" loading="lazy"><div class="sheen"></div>'+pTag;
       card.addEventListener('click',()=>openModel(pm));cvGrid.appendChild(card);
     });
     showCatView();
