@@ -819,11 +819,13 @@ try {
   }
 } catch(e){}
 
-// 2. Прямой REST API способ для iOS Safari (на случай блокировки CDN/SDK на iPhone)
-fetch(SUPABASE_URL + '/rest/v1/kombat_catalog?select=*', {
+// 2. Прямой REST API способ с отключением кэширования Safari (cache: 'no-store')
+fetch(SUPABASE_URL + '/rest/v1/kombat_catalog?select=*&_t=' + Date.now(), {
+  cache: 'no-store',
   headers: {
     'apikey': SUPABASE_ANON_KEY,
-    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+    'Cache-Control': 'no-cache, no-store, must-revalidate'
   }
 }).then(r => r.json()).then(data => {
   if (Array.isArray(data)) applySupabaseData(data);
